@@ -12,14 +12,14 @@
 	</properties>
 
 	<build>
-
 		<defaultGoal>package</defaultGoal>
+		<sourceDirectory>src</sourceDirectory>
 		<resources>
 			<resource>
-				<directory>${project.basedir}/src/main/resources</directory>
-				<includes>
-					<include>*.*</include>
-				</includes>
+				<directory>src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
 			</resource>
 		</resources>
 
