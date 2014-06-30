@@ -65,10 +65,10 @@ public class DayRatingETL extends Configured implements Tool  {
         	before = sdf.parse(PropertiesUtils.getInitStartDate()).getTime();        	
         }
         
-        //startRow = Bytes.add(Bytes.toBytes("aa"), Bytes.toBytes(before));
-        //stopRow = Bytes.add(Bytes.toBytes("zz"), Bytes.toBytes(now));
-        startRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(before));
-        stopRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(now));
+        startRow = Bytes.add(Bytes.toBytes("aa"), Bytes.toBytes(before));
+        stopRow = Bytes.add(Bytes.toBytes("zz"), Bytes.toBytes(now));
+        //startRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(before));
+        //stopRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(now));
                
 		Scan s = new Scan();
 		
@@ -174,7 +174,7 @@ public class DayRatingETL extends Configured implements Tool  {
 			gmHbMap.clear();
 			gmUpDownMap.clear();
 			myGids.clear();
-			int rate = 0;
+			double rate = 0;
 			
 			for(Text v:vList){
 				actions = v.toString().split(",");
@@ -200,18 +200,18 @@ public class DayRatingETL extends Configured implements Tool  {
 				gid = ite.next();
 				if(gmHbMap.get(gid)!=null){
 					if(PropertiesUtils.getIsInit()){
-						rate = ((gmHbMap.get(gid)*5)/(PropertiesUtils.getSatisfyMinute()*PropertiesUtils.getInitDays()))*10;
+						rate = ((double)(gmHbMap.get(gid)*5)/(double)(PropertiesUtils.getSatisfyMinute()*PropertiesUtils.getInitDays()))*10D;
 					}else{
-						rate = ((gmHbMap.get(gid)*5)/PropertiesUtils.getSatisfyMinute())*10;
+						rate = ((double)(gmHbMap.get(gid)*5)/(double)PropertiesUtils.getSatisfyMinute())*10D;
 					}
 					
-				}/*else if(gmUpDownMap.get(gid)){
+				}else if(gmUpDownMap.get(gid)){
 					rate = 10;
 				}else if(!gmUpDownMap.get(gid)){
 					rate = 0;
-				}*/
+				}
 				
-				context.write(null,new Text(uid.toString()+","+gid+","+Integer.toString(rate)));
+				context.write(null,new Text(uid.toString()+","+gid+","+Double.toString(rate)));
 			}
 			
 			
