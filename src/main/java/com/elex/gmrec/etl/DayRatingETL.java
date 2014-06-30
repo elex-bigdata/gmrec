@@ -2,6 +2,7 @@ package com.elex.gmrec.etl;
 
 import java.io.IOException;
 import java.util.Date;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,6 +112,7 @@ public class DayRatingETL extends Configured implements Tool  {
 				InterruptedException {
 			configuration = HBaseConfiguration.create();
 			gm = new HTable(configuration, "gm_gidlist");
+			gm.setAutoFlush(false);
 			Scan s = new Scan();
 			s.setCaching(500);
 			s.addColumn(Bytes.toBytes("gm"), Bytes.toBytes("gt"));
@@ -159,6 +161,7 @@ public class DayRatingETL extends Configured implements Tool  {
 		@Override
 		protected void cleanup(Context context) throws IOException,
 				InterruptedException {
+			gm.flushCommits();
 			gm.close();
 		}
 
@@ -174,13 +177,14 @@ public class DayRatingETL extends Configured implements Tool  {
 		String gid;
 		String uid;
 		String day;
+		DecimalFormat df = new DecimalFormat("#.###");
 		@Override
 		protected void reduce(Text dayUid, Iterable<Text> vList,Context context) throws IOException, InterruptedException {
 			gmHbMap.clear();
 			gmUpDownMap.clear();
 			myGids.clear();
 			double rate = 0;
-			uid=dayUid.toString().split(",")[0];
+			day=dayUid.toString().split(",")[0];
 			uid=dayUid.toString().split(",")[1];
 			
 			
@@ -214,7 +218,7 @@ public class DayRatingETL extends Configured implements Tool  {
 					rate = 0D;
 				}
 				
-				context.write(null,new Text(uid.toString()+","+gid+","+Double.toString(rate)+","+day));
+				context.write(null,new Text(uid.toString()+","+gid+","+df.format(rate)+","+day));
 			}
 			
 			
