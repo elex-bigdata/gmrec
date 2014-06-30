@@ -1,6 +1,7 @@
 package com.elex.gmrec.etl;
 
 import java.io.IOException;
+import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -92,14 +93,16 @@ public class DayRatingETL extends Configured implements Tool  {
 	public static class MyMapper extends TableMapper<Text, Text> {
 		private HTable gm;
 		private Configuration configuration;
-		private String gid="";
-		private String uid="";
+		private String gid;
+		private String uid;
 		private String[] ugid;
 		private String gmType = null;
 		private String actionType = "";
 		private Text uidKey = new Text();
 		private Text mixValue =new Text();
 		private Set<String> allGM = new HashSet<String>();
+		private Date dayTime = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		
 		
 
@@ -114,7 +117,7 @@ public class DayRatingETL extends Configured implements Tool  {
 			ResultScanner rs = gm.getScanner(s);
 			for (Result r : rs) {
 				if(!r.isEmpty()){
-					allGM.add(Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-9)));											
+					allGM.add(Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-1)));											
 				}
 			}
 		}
@@ -122,18 +125,18 @@ public class DayRatingETL extends Configured implements Tool  {
 		
 
 		@Override
-		protected void map(ImmutableBytesWritable key, Result values,Context context) throws IOException, InterruptedException {
+		protected void map(ImmutableBytesWritable key, Result r,Context context) throws IOException, InterruptedException {
 			
-			if (!values.isEmpty()) {
-				ugid = Bytes.toString(Bytes.tail(values.getRow(), values.getRow().length-10)).split("\u0001");
+			if (!r.isEmpty()) {
+				ugid = Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-10)).split("\u0001");
 				if(ugid.length==2){
 					uid = ugid[1];
 					gid = ugid[0];
 				}
 				
-				actionType = Bytes.toString(Bytes.head(values.getRow(), 2));
-				
-				for (KeyValue kv : values.raw()) {										
+				actionType = Bytes.toString(Bytes.head(r.getRow(), 2));
+				dayTime = new Date(Bytes.toLong(Bytes.tail(Bytes.head(r.getRow(), 10), 8)));
+				for (KeyValue kv : r.raw()) {										
 					if ("ua".equals(Bytes.toString(kv.getFamily()))&& "gt".equals(Bytes.toString(kv.getQualifier()))) {
 						gmType = Bytes.toString(kv.getValue());
 					}
@@ -143,12 +146,12 @@ public class DayRatingETL extends Configured implements Tool  {
 			gmType=gmType==null?"m":gmType.substring(0, 1);
 			
 			if(!allGM.contains(gid)){
-				Put put = new Put(Bytes.add(Bytes.toBytes(gmType), Bytes.toBytes(System.currentTimeMillis()), Bytes.toBytes(gid)));
+				Put put = new Put(Bytes.add(Bytes.toBytes(gmType), Bytes.toBytes(gid)));
 				put.add(Bytes.toBytes("gm"), Bytes.toBytes("gt"), Bytes.toBytes(gmType));
 				gm.put(put);
 			}
 			
-			uidKey.set(Bytes.toBytes(uid));
+			uidKey.set(Bytes.toBytes(sdf.format(dayTime)+","+uid));
 			mixValue.set(Bytes.toBytes(gid+","+actionType));
 			context.write(uidKey, mixValue);
 		}
@@ -169,12 +172,17 @@ public class DayRatingETL extends Configured implements Tool  {
 		Iterator<String> ite;
 		String[] actions;		
 		String gid;
+		String uid;
+		String day;
 		@Override
-		protected void reduce(Text uid, Iterable<Text> vList,Context context) throws IOException, InterruptedException {
+		protected void reduce(Text dayUid, Iterable<Text> vList,Context context) throws IOException, InterruptedException {
 			gmHbMap.clear();
 			gmUpDownMap.clear();
 			myGids.clear();
 			double rate = 0;
+			uid=dayUid.toString().split(",")[0];
+			uid=dayUid.toString().split(",")[1];
+			
 			
 			for(Text v:vList){
 				actions = v.toString().split(",");
@@ -199,19 +207,14 @@ public class DayRatingETL extends Configured implements Tool  {
 			while(ite.hasNext()){
 				gid = ite.next();
 				if(gmHbMap.get(gid)!=null){
-					if(PropertiesUtils.getIsInit()){
-						rate = ((double)(gmHbMap.get(gid)*5)/(double)(PropertiesUtils.getSatisfyMinute()*PropertiesUtils.getInitDays()))*10D;
-					}else{
-						rate = ((double)(gmHbMap.get(gid)*5)/(double)PropertiesUtils.getSatisfyMinute())*10D;
-					}
-					
+					rate = ((double)(gmHbMap.get(gid)*5)/(double)PropertiesUtils.getSatisfyMinute())*10D;					
 				}else if(gmUpDownMap.get(gid)){
-					rate = 10;
+					rate = 10D;
 				}else if(!gmUpDownMap.get(gid)){
-					rate = 0;
+					rate = 0D;
 				}
 				
-				context.write(null,new Text(uid.toString()+","+gid+","+Double.toString(rate)));
+				context.write(null,new Text(uid.toString()+","+gid+","+Double.toString(rate)+","+day));
 			}
 			
 			
