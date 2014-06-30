@@ -41,7 +41,7 @@ public class ActionDataReader {
 		Date dayTime = null;
 		String gmType = null;
 		String actionType = null;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH24:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");		
 		
 		for(Result r:rs){
