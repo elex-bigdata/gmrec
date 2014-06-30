@@ -1,12 +1,14 @@
 package com.elex.gmrec.etl;
 
 import java.io.IOException;
-import java.util.Date;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +22,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
@@ -56,8 +57,6 @@ public class DayRatingETL extends Configured implements Tool  {
         job.setJarByClass(DayRatingETL.class);
         long now;
         long before;
-        byte[] startRow=null;
-        byte[] stopRow=null;
         
         if(!PropertiesUtils.getIsInit()){
         	now =System.currentTimeMillis();
@@ -65,22 +64,39 @@ public class DayRatingETL extends Configured implements Tool  {
         }else{
         	now = sdf.parse(PropertiesUtils.getInitEndDate()).getTime();
         	before = sdf.parse(PropertiesUtils.getInitStartDate()).getTime();        	
-        }
+        }                       
         
-        startRow = Bytes.add(Bytes.toBytes("aa"), Bytes.toBytes(before));
-        stopRow = Bytes.add(Bytes.toBytes("zz"), Bytes.toBytes(now));
-        //startRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(before));
-        //stopRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(now));
+        List<Scan> scans = new ArrayList<Scan>();  
                
-		Scan s = new Scan();
+		Scan hbScan = new Scan();
+		hbScan.setStartRow(Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(before)));
+		hbScan.setStopRow(Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(now)));
+		hbScan.setCaching(500);
+		hbScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gid"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gt"));
+		scans.add(hbScan);
 		
-		s.setStartRow(startRow);
-		s.setStopRow(stopRow);
-		s.setCaching(500);
-		s.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gid"));
-		s.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gt"));
+		Scan upScan = new Scan();
+		upScan.setStartRow(Bytes.add(Bytes.toBytes("up"), Bytes.toBytes(before)));
+		upScan.setStopRow(Bytes.add(Bytes.toBytes("up"), Bytes.toBytes(now)));
+		upScan.setCaching(500);
+		upScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
+		upScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gid"));
+		upScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gt"));
+		scans.add(upScan);
 		
-		TableMapReduceUtil.initTableMapperJob("gm_user_action", s, MyMapper.class,Text.class, Text.class, job);
+		Scan doScan = new Scan();
+		doScan.setStartRow(Bytes.add(Bytes.toBytes("do"), Bytes.toBytes(before)));
+		doScan.setStopRow(Bytes.add(Bytes.toBytes("do"), Bytes.toBytes(now)));
+		doScan.setCaching(500);
+		doScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
+		doScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gid"));
+		doScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gt"));
+		scans.add(doScan);
+		
+		
+		TableMapReduceUtil.initTableMapperJob(scans, MyMapper.class,Text.class, Text.class, job);
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(Text.class);
 		job.setReducerClass(MyReducer.class);
@@ -218,6 +234,8 @@ public class DayRatingETL extends Configured implements Tool  {
 					rate = 0D;
 				}
 				
+				rate=rate>10?10:rate;
+				rate=rate<0.42?0:rate;
 				context.write(null,new Text(uid.toString()+","+gid+","+df.format(rate)+","+day));
 			}
 			
