@@ -28,6 +28,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.PropertiesUtils;
 
@@ -36,9 +37,10 @@ public class DayRatingETL extends Configured implements Tool  {
 
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
-
+	public static void main(String[] args) throws Exception {
+		ToolRunner.run(new Configuration(), new DayRatingETL(), args);
 	}
 
 	@Override
@@ -79,7 +81,7 @@ public class DayRatingETL extends Configured implements Tool  {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		FileOutputFormat.setOutputPath(job, new Path(args[0]));
-		job.setOutputFormatClass(TextOutputFormat.class);//如果发现编译一直报错，可能是import了mapred包里的同名SequenceFileOutputFormat类。
+		job.setOutputFormatClass(TextOutputFormat.class);
 		return job.waitForCompletion(true)?0:1;
 	}
 	
