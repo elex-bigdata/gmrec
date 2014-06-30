@@ -18,7 +18,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.FilterList;
+
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
@@ -63,10 +63,12 @@ public class DayRatingETL extends Configured implements Tool  {
         }else{
         	now = sdf.parse(PropertiesUtils.getInitEndDate()).getTime();
         	before = sdf.parse(PropertiesUtils.getInitStartDate()).getTime();
+        	conf.set("isInit", "T");
+        	conf.set("days", Long.toString((now-before)/(24L*60L*60L*1000L)));
         }
         
-        startRow = Bytes.add(Bytes.toBytes("aa"), Bytes.toBytes(before));
-        stopRow = Bytes.add(Bytes.toBytes("zz"), Bytes.toBytes(now));
+        startRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(before));
+        stopRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(now));
                
 		Scan s = new Scan();
 		
@@ -197,12 +199,17 @@ public class DayRatingETL extends Configured implements Tool  {
 			while(ite.hasNext()){
 				gid = ite.next();
 				if(gmHbMap.get(gid)!=null){
-					rate = ((gmHbMap.get(gid)*5)/PropertiesUtils.getSatisfyMinute())*10;
-				}else if(gmUpDownMap.get(gid)){
+					if(context.getConfiguration().get("isInit").endsWith("T")){
+						rate = ((gmHbMap.get(gid)*5)/(PropertiesUtils.getSatisfyMinute()*(Integer.parseInt(context.getConfiguration().get("days")))))*10;
+					}else{
+						rate = ((gmHbMap.get(gid)*5)/PropertiesUtils.getSatisfyMinute())*10;
+					}
+					
+				}/*else if(gmUpDownMap.get(gid)){
 					rate = 10;
 				}else if(!gmUpDownMap.get(gid)){
 					rate = 0;
-				}
+				}*/
 				
 				context.write(null,new Text(uid.toString()+","+gid+","+Integer.toString(rate)));
 			}
