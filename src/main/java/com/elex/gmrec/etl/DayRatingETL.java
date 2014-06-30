@@ -18,6 +18,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
@@ -64,10 +65,11 @@ public class DayRatingETL extends Configured implements Tool  {
         	before = sdf.parse(PropertiesUtils.getInitStartDate()).getTime();
         }
         
-        startRow = Bytes.toBytes(before);
-        stopRow = Bytes.toBytes(now);
+        startRow = Bytes.add(Bytes.toBytes("aa"), Bytes.toBytes(before));
+        stopRow = Bytes.add(Bytes.toBytes("zz"), Bytes.toBytes(now));
                
 		Scan s = new Scan();
+		
 		s.setStartRow(startRow);
 		s.setStopRow(stopRow);
 		s.setCaching(500);
