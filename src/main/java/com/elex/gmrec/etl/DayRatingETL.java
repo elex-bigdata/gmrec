@@ -62,11 +62,11 @@ public class DayRatingETL extends Configured implements Tool  {
             before = now - Long.valueOf(24L*60L*60L*1000L);           
         }else{
         	now = sdf.parse(PropertiesUtils.getInitEndDate()).getTime();
-        	before = sdf.parse(PropertiesUtils.getInitStartDate()).getTime();
-        	conf.set("isInit", "T");
-        	conf.set("days", Long.toString((now-before)/(24L*60L*60L*1000L)));
+        	before = sdf.parse(PropertiesUtils.getInitStartDate()).getTime();        	
         }
         
+        //startRow = Bytes.add(Bytes.toBytes("aa"), Bytes.toBytes(before));
+        //stopRow = Bytes.add(Bytes.toBytes("zz"), Bytes.toBytes(now));
         startRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(before));
         stopRow = Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(now));
                
@@ -199,8 +199,8 @@ public class DayRatingETL extends Configured implements Tool  {
 			while(ite.hasNext()){
 				gid = ite.next();
 				if(gmHbMap.get(gid)!=null){
-					if(context.getConfiguration().get("isInit").endsWith("T")){
-						rate = ((gmHbMap.get(gid)*5)/(PropertiesUtils.getSatisfyMinute()*(Integer.parseInt(context.getConfiguration().get("days")))))*10;
+					if(PropertiesUtils.getIsInit()){
+						rate = ((gmHbMap.get(gid)*5)/(PropertiesUtils.getSatisfyMinute()*PropertiesUtils.getInitDays()))*10;
 					}else{
 						rate = ((gmHbMap.get(gid)*5)/PropertiesUtils.getSatisfyMinute())*10;
 					}

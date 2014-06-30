@@ -45,4 +45,8 @@ public class PropertiesUtils {
 		return Integer.parseInt(pop.getProperty("satisfyMinute"));
 	}
 	
+	public static int getInitDays(){
+		return Integer.parseInt(pop.getProperty("initDays"));
+	}
+	
 }
