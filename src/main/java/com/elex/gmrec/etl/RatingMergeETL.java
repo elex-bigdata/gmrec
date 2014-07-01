@@ -11,6 +11,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -82,11 +83,12 @@ public class RatingMergeETL extends Configured implements Tool  {
 		return daySet.toArray(new Path[daySet.size()]);
 	}
 
-	public static class MyMapper extends Mapper<Text, Text, Text, Text> {
+	//TextOutputFormat的输出文件key为long的字节偏移量
+	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 		String[] vList;
 		@Override
-		protected void map(Text key, Text value, Context context)
+		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			vList = value.toString().split(",");
 			if(vList.length==4){
