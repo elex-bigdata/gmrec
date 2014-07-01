@@ -70,7 +70,7 @@ public class RatingMergeETL extends Configured implements Tool  {
 		for(int i=0;i<days;i++){
 			now = now- Long.valueOf(24L*60L*60L*1000L);
 			String day = sdf.format(new Date(now));
-			Path path = new Path(PropertiesUtils.getRatingFolder()+"/"+day+"/");
+			Path path = new Path(PropertiesUtils.getRatingFolder()+"/"+day);
 			if(fs.exists(path)){
 				daySet.add(path);
 			}
