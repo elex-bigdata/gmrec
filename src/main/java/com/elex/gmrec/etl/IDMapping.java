@@ -61,11 +61,11 @@ public class IDMapping {
         	}
         } 
         
-        Path uidMappingFile = new Path(PropertiesUtils.getRatingFolder()+GMRecConstants.UIDMAPPINGFILE);
+        Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+GMRecConstants.UIDMAPPINGFILE);
         HdfsUtils.delFile(fs, uidMappingFile.toString());
         writeSetToFile(fs,uidSet,uidMappingFile);
         
-        Path gidMappingFile = new Path(PropertiesUtils.getRatingFolder()+GMRecConstants.GIDMAPPINGFILE);
+        Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+GMRecConstants.GIDMAPPINGFILE);
         HdfsUtils.delFile(fs, gidMappingFile.toString());
         writeSetToFile(fs,gidSet,gidMappingFile);
         

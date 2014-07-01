@@ -47,12 +47,14 @@ public class Test {
 		
 		/*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		System.out.println(sdf.format(new Date(System.currentTimeMillis())).substring(0, 11).replace("-", "").trim());*/
-		Configuration conf = new Configuration();
+		/*Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		Path[] inputDirs = new RatingMergeETL().getMergeInputFolders(fs);
 		for(Path dir:inputDirs){
 			System.out.println(dir.toString());
-		}
+		}*/
+		
+		System.out.println(PropertiesUtils.getGmRecRootFolder());
 	}
 
 }

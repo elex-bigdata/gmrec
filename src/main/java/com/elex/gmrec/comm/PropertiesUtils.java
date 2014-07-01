@@ -50,6 +50,10 @@ public class PropertiesUtils {
 		return pop.getProperty("ratingFolder");
 	}
 	
+	public static String getGmRecRootFolder(){
+		return pop.getProperty("ratingFolder").substring(0,pop.getProperty("ratingFolder").indexOf("/", 1));
+	}
+	
 	public static int getMergeDays(){
 		return Integer.parseInt(pop.getProperty("mergeDays"));
 	}
