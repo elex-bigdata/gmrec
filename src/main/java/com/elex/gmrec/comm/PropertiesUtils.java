@@ -46,4 +46,11 @@ public class PropertiesUtils {
 	}
 	
 	
+	public static String getRatingFolder(){
+		return pop.getProperty("ratingFolder");
+	}
+	
+	public static int getMergeDays(){
+		return Integer.parseInt(pop.getProperty("mergeDays"));
+	}
 }

@@ -34,6 +34,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import com.elex.gmrec.comm.GMRecConstants;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 
@@ -102,7 +103,12 @@ public class DayRatingETL extends Configured implements Tool  {
 		job.setReducerClass(MyReducer.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
-		FileOutputFormat.setOutputPath(job, new Path(args[0]));
+		if(PropertiesUtils.getIsInit()){
+			FileOutputFormat.setOutputPath(job, new Path(PropertiesUtils.getRatingFolder()+GMRecConstants.INITFOLDER));
+		}else{
+			FileOutputFormat.setOutputPath(job, new Path(PropertiesUtils.getRatingFolder()+"/"+sdf.format(new Date(before)).substring(0, 11).replace("-", "")));
+		}
+		
 		job.setOutputFormatClass(TextOutputFormat.class);
 		return job.waitForCompletion(true)?0:1;
 	}
