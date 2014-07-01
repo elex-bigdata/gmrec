@@ -23,7 +23,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import com.elex.gmrec.comm.GMRecConstants;
+import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 public class RatingMergeETL extends Configured implements Tool  {
@@ -55,7 +55,7 @@ public class RatingMergeETL extends Configured implements Tool  {
 		}
 		
 		job.setOutputFormatClass(TextOutputFormat.class);
-		String output = PropertiesUtils.getRatingFolder()+GMRecConstants.MERGEFOLDER;
+		String output = PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER;
 		com.elex.gmrec.comm.HdfsUtils.delFile(fs, output);
 		FileOutputFormat.setOutputPath(job, new Path(output));
 		
@@ -78,7 +78,7 @@ public class RatingMergeETL extends Configured implements Tool  {
 			
 		}
 		if(daySet.size()<days){
-			daySet.add(new Path(PropertiesUtils.getRatingFolder()+GMRecConstants.INITFOLDER));
+			daySet.add(new Path(PropertiesUtils.getRatingFolder()+Constants.INITFOLDER));
 		}
 		return daySet.toArray(new Path[daySet.size()]);
 	}

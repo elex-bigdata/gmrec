@@ -15,7 +15,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IOUtils;
 
-import com.elex.gmrec.comm.GMRecConstants;
+import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 
@@ -30,7 +30,7 @@ public class IDMapping {
 	}
 
 	public static void createIdMappingFile() throws IOException{
-		String uri = PropertiesUtils.getRatingFolder()+GMRecConstants.MERGEFOLDER;
+		String uri = PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER;
         Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(conf);
         FileStatus[] files = fs.listStatus(new Path(uri));
@@ -53,19 +53,20 @@ public class IDMapping {
         	            	gidSet.add(vList[1]);
         	            	line = reader.readLine();
         	            }
-        	           
+        	           reader.close();
         	        } finally {
         	            IOUtils.closeStream(reader);
         	        }
+        			
         		}
         	}
         } 
         
-        Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+GMRecConstants.UIDMAPPINGFILE);
+        Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.UIDMAPPINGFILE);
         HdfsUtils.delFile(fs, uidMappingFile.toString());
         writeSetToFile(fs,uidSet,uidMappingFile);
         
-        Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+GMRecConstants.GIDMAPPINGFILE);
+        Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GIDMAPPINGFILE);
         HdfsUtils.delFile(fs, gidMappingFile.toString());
         writeSetToFile(fs,gidSet,gidMappingFile);
         
