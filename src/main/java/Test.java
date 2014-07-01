@@ -46,11 +46,11 @@ public class Test {
 		System.out.println(df.format(287.98576D));*/
 		
 		/*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		System.out.println(sdf.format(new Date(System.currentTimeMillis())).substring(0, 11).replace("-", ""));*/
+		System.out.println(sdf.format(new Date(System.currentTimeMillis())).substring(0, 11).replace("-", "").trim());*/
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
-		Path[] dirs = new RatingMergeETL().getMergeInputFolders(fs);
-		for(Path dir:dirs){
+		Path[] inputDirs = new RatingMergeETL().getMergeInputFolders(fs);
+		for(Path dir:inputDirs){
 			System.out.println(dir.toString());
 		}
 	}

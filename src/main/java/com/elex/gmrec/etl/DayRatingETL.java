@@ -106,7 +106,7 @@ public class DayRatingETL extends Configured implements Tool  {
 		if(PropertiesUtils.getIsInit()){
 			FileOutputFormat.setOutputPath(job, new Path(PropertiesUtils.getRatingFolder()+GMRecConstants.INITFOLDER));
 		}else{
-			FileOutputFormat.setOutputPath(job, new Path(PropertiesUtils.getRatingFolder()+"/"+sdf.format(new Date(before)).substring(0, 11).replace("-", "")));
+			FileOutputFormat.setOutputPath(job, new Path(PropertiesUtils.getRatingFolder()+"/"+sdf.format(new Date(before)).substring(0, 11).replace("-", "").trim()));
 		}
 		
 		job.setOutputFormatClass(TextOutputFormat.class);
