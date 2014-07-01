@@ -18,7 +18,7 @@ import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 
-public class PrepareInputFroCF {
+public class PrepareInputForCF {
 
 	/**
 	 * @param args
@@ -71,7 +71,7 @@ public class PrepareInputFroCF {
 	        	            	String[] vList = line.split(",");
 	        	            	if(vList.length==3){
 		        	            	out.write(Bytes.toBytes(new String(Integer.toString(uidMap.get(vList[0]))
-		        	            			+","+Integer.toString(gidMap.get(vList[1]))+","+vList[2])));
+		        	            			+","+Integer.toString(gidMap.get(vList[1]))+","+vList[2]+"\r\n")));
 	        	            	}
 	        	            	line = reader.readLine();
 	        	            }
