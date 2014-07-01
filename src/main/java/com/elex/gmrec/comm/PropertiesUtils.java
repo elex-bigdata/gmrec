@@ -57,4 +57,12 @@ public class PropertiesUtils {
 	public static int getMergeDays(){
 		return Integer.parseInt(pop.getProperty("mergeDays"));
 	}
+	
+	public static String getCfNumOfRec(){
+		return pop.getProperty("cf.numOfRec");
+	}
+	
+	public static String getCfSimilarityClassname(){
+		return pop.getProperty("cf.SimilarityClassname");
+	}
 }

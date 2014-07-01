@@ -19,6 +19,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.Constants;
+import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 public class PrepareInputForFPG extends Configured implements Tool {
@@ -49,7 +50,7 @@ public class PrepareInputForFPG extends Configured implements Tool {
 		job.setOutputFormatClass(TextOutputFormat.class);
 		
 		Path output = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.FPGINPUT);
-		com.elex.gmrec.comm.HdfsUtils.delFile(fs, output.toString());
+		HdfsUtils.delFile(fs, output.toString());
 		FileOutputFormat.setOutputPath(job, output);
 		
 		return job.waitForCompletion(true)?0:1;
