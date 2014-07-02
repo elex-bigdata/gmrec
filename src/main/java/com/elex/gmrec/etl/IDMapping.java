@@ -3,8 +3,10 @@ package com.elex.gmrec.etl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
@@ -20,6 +22,15 @@ import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 public class IDMapping {
+	
+	
+
+	private static Map<String,Integer> uidStrIntMap;
+	private static Map<String,Integer> gidStrIntMap;
+	private static Map<Integer,String> uidIntStrMap;
+	private static Map<Integer,String> gidIntStrMap;
+	private static Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.UIDMAPPINGFILE);
+	private static Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GIDMAPPINGFILE);
 
 	/**
 	 * @param args
@@ -28,6 +39,45 @@ public class IDMapping {
 	public static void main(String[] args) throws IOException {
 		createIdMappingFile();
 	}
+	
+	public static Map<String,Integer> getUidStrIntMap() throws IOException{
+		if(uidStrIntMap==null){
+			Configuration conf = new Configuration();
+		    FileSystem fs = FileSystem.get(conf);		      
+			uidStrIntMap = IDMapping.readIdMapFile(fs,uidMappingFile);
+		}
+		return uidStrIntMap;
+	}
+	
+	public static Map<String,Integer> getGidStrIntMap() throws IOException{
+		if(gidStrIntMap==null){
+			Configuration conf = new Configuration();
+		    FileSystem fs = FileSystem.get(conf);		    
+			gidStrIntMap = IDMapping.readIdMapFile(fs,gidMappingFile);
+		}
+		return gidStrIntMap;
+	}
+	
+	public static Map<Integer,String> getUidIntStrMap() throws IOException{
+		if(uidIntStrMap==null){
+			Configuration conf = new Configuration();
+		    FileSystem fs = FileSystem.get(conf);
+			uidIntStrMap = IDMapping.readIntStrIdMapFile(fs, uidMappingFile);
+		}
+		return uidIntStrMap;
+	}
+	
+	public static Map<Integer,String> getGidIntStrMap() throws IOException{
+		if(gidIntStrMap==null){
+			Configuration conf = new Configuration();
+		    FileSystem fs = FileSystem.get(conf);
+		    gidIntStrMap = IDMapping.readIntStrIdMapFile(fs, gidMappingFile);
+		}
+		return gidIntStrMap;
+	}
+
+	
+	
 
 	public static void createIdMappingFile() throws IOException{
 		String uri = PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER;
@@ -82,5 +132,40 @@ public class IDMapping {
 			i++;
 		}		
 		out.close();		
+	}
+	
+	public static Map<String,Integer> readIdMapFile(FileSystem fs,Path src) throws IOException{
+		Map<String,Integer> idMap = new HashMap<String,Integer>();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src))); 
+		String line =reader.readLine();
+        while(line != null){
+        	String[] vList = line.split(",");
+        	if(vList.length==2){
+        		idMap.put(vList[1],Integer.parseInt(vList[0]));
+        	}
+        	
+        	line = reader.readLine();
+        }
+        reader.close();
+		return idMap;
+		
+	}
+	
+	
+	public static Map<Integer,String> readIntStrIdMapFile(FileSystem fs,Path src) throws IOException{
+		Map<Integer,String> idMap = new HashMap<Integer,String>();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src))); 
+		String line =reader.readLine();
+        while(line != null){
+        	String[] vList = line.split(",");
+        	if(vList.length==2){
+        		idMap.put(Integer.parseInt(vList[0]),vList[1]);
+        	}
+        	
+        	line = reader.readLine();
+        }
+        reader.close();
+		return idMap;
+		
 	}
 }

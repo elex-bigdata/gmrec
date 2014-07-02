@@ -2,10 +2,6 @@ package com.elex.gmrec.etl;
 
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-
 import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.ParseUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
@@ -31,12 +27,8 @@ public class PrepareInputForCF  implements StrLineParseTool{
 
 	@Override
 	public String parse(String line) throws Exception {
-		Configuration conf = new Configuration();
-	    FileSystem fs = FileSystem.get(conf);
-		Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.UIDMAPPINGFILE);
-		Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GIDMAPPINGFILE);
-		Map<String,Integer> uidMap = ParseUtils.readIdMapFile(fs,uidMappingFile);
-	    Map<String,Integer> gidMap = ParseUtils.readIdMapFile(fs,gidMappingFile);
+		Map<String,Integer> uidMap = IDMapping.getUidStrIntMap();
+	    Map<String,Integer> gidMap = IDMapping.getGidStrIntMap();
 		
 		String[] vList = line.split(",");
     	if(vList.length==3){

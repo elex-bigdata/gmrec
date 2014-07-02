@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.mahout.cf.taste.hadoop.item.RecommenderJob;
 
@@ -14,6 +12,7 @@ import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.ParseUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 import com.elex.gmrec.comm.StrLineParseTool;
+import com.elex.gmrec.etl.IDMapping;
 
 public class ItemBaseCF implements StrLineParseTool {
 
@@ -54,13 +53,9 @@ public class ItemBaseCF implements StrLineParseTool {
 	}
 
 	@Override
-	public String parse(String line) throws Exception {
-		Configuration conf = new Configuration();
-	    FileSystem fs = FileSystem.get(conf);
-		Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.UIDMAPPINGFILE);
-		Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GIDMAPPINGFILE);
-		Map<Integer,String> uidMap = ParseUtils.readIntStrIdMapFile(fs,uidMappingFile);
-	    Map<Integer,String> gidMap = ParseUtils.readIntStrIdMapFile(fs,gidMappingFile);
+	public String parse(String line) throws Exception {		
+		Map<Integer,String> uidMap = IDMapping.getUidIntStrMap();
+	    Map<Integer,String> gidMap = IDMapping.getGidIntStrMap();
 	    
 	    String[] kv = line.toString().split("\\s");
 	    String uid = uidMap.get(Integer.parseInt(kv[0].trim()));

@@ -16,49 +16,14 @@ import org.apache.hadoop.io.IOUtils;
 
 
 public class ParseUtils {
-
+			
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-	}
-
-	public static Map<String,Integer> readIdMapFile(FileSystem fs,Path src) throws IOException{
-		Map<String,Integer> idMap = new HashMap<String,Integer>();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src))); 
-		String line =reader.readLine();
-        while(line != null){
-        	String[] vList = line.split(",");
-        	if(vList.length==2){
-        		idMap.put(vList[1],Integer.parseInt(vList[0]));
-        	}
-        	
-        	line = reader.readLine();
-        }
-        reader.close();
-		return idMap;
-		
-	}
-	
-	
-	public static Map<Integer,String> readIntStrIdMapFile(FileSystem fs,Path src) throws IOException{
-		Map<Integer,String> idMap = new HashMap<Integer,String>();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src))); 
-		String line =reader.readLine();
-        while(line != null){
-        	String[] vList = line.split(",");
-        	if(vList.length==2){
-        		idMap.put(Integer.parseInt(vList[0]),vList[1]);
-        	}
-        	
-        	line = reader.readLine();
-        }
-        reader.close();
-		return idMap;
-		
-	}
+	}	
 	
 	public static void parseTextOutput(String input,String output,StrLineParseTool tool) throws Exception{
 		 Configuration conf = new Configuration();
