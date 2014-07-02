@@ -22,6 +22,7 @@ public class ItemBaseCF implements StrLineParseTool {
 	 */
 	public static void main(String[] args) throws Exception {
 		RunItemCf();
+		recParse();
 	}
 	
 	public static void RunItemCf() throws Exception{
