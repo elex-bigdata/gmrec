@@ -79,7 +79,7 @@ public class IDMapping {
 	
 	
 
-	public static void createIdMappingFile() throws IOException{
+	public static int createIdMappingFile() throws IOException{
 		String uri = PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER;
         Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(conf);
@@ -120,7 +120,7 @@ public class IDMapping {
         HdfsUtils.delFile(fs, gidMappingFile.toString());
         writeSetToFile(fs,gidSet,gidMappingFile);
         
-
+        return 0;
 	}
 	
 	public static void writeSetToFile(FileSystem fs, Set<String> set,Path dest) throws IOException{

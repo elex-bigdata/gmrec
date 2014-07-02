@@ -27,7 +27,7 @@ public class ItemBaseCF implements StrLineParseTool {
 		recParse();
 	}
 	
-	public static void RunItemCf() throws Exception{
+	public static int RunItemCf() throws Exception{
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		String cfOut = PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT;
@@ -49,18 +49,19 @@ public class ItemBaseCF implements StrLineParseTool {
 		String[] args = new String[argList.size()];
 		argList.toArray(args);
 		
-		ToolRunner.run(new Configuration(), new RecommenderJob(), args);
+		return ToolRunner.run(new Configuration(), new RecommenderJob(), args);
 	}
 	
-	public static void recParse() throws Exception{
+	public static int recParse() throws Exception{
 		 String input = PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT;
 		 String output = PropertiesUtils.getGmRecRootFolder()+Constants.CFRECPARSE;
 		 ParseUtils.parseTextOutput(input, output, new ItemBaseCF());
+		 return 0;
 	}
 	
 	
-	public static void writeCfRecToRedis(){
-		
+	public static int writeCfRecToRedis(){
+		return 0;
 	}
 
 	@Override

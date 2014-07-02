@@ -65,4 +65,12 @@ public class PropertiesUtils {
 	public static String getCfSimilarityClassname(){
 		return pop.getProperty("cf.SimilarityClassname");
 	}
+	
+	public static String getMinSupport(){
+		return pop.getProperty("fi.minSupport");
+	}
+	
+	public static String getNumberFrequentItem(){
+		return pop.getProperty("fi.numberFrequentItem");
+	}
 }

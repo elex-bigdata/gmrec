@@ -18,10 +18,11 @@ public class PrepareInputForCF  implements StrLineParseTool{
 	}
 	
 	
-	public static void prepareInput() throws Exception{
-		 String input = PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER;
-		 String output = PropertiesUtils.getGmRecRootFolder()+Constants.CFINPUT;
-		 ParseUtils.parseTextOutput(input, output, new PrepareInputForCF());
+	public static int prepareInput() throws Exception{
+		String input = PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER;
+		String output = PropertiesUtils.getGmRecRootFolder()+Constants.CFINPUT;
+		ParseUtils.parseTextOutput(input, output, new PrepareInputForCF());
+		return 0;
 	}
 
 

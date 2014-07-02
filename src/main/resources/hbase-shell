@@ -1,1 +1,5 @@
 create 'gm_gidlist','gm'
+
+import org.apache.hadoop.hbase.filter.CompareFilter
+import org.apache.hadoop.hbase.filter.SubstringComparator
+scan 'gm_user_action', {FILTER => org.apache.hadoop.hbase.filter.RowFilter.new(CompareFilter::CompareOp.valueOf('EQUAL'),SubstringComparator.new("uK2C3FOk8KBxihwAChfIAg6161"))}
