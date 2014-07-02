@@ -79,7 +79,7 @@ public class ItemBaseCF implements StrLineParseTool {
 			String[] item = itemArr[i].split(":");
 			sb.append("{");
 			String gid = gidMap.get(Integer.parseInt(item[0]));
-			sb.append(gid+":"+item[1]);
+			sb.append("\""+gid+"\":"+item[1]);
 			sb.append("}");
 			if(i!=itemArr.length-1){
 				sb.append(",");
