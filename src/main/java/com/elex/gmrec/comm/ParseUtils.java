@@ -1,10 +1,11 @@
 package com.elex.gmrec.comm;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -13,15 +14,20 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.Reader;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.util.ReflectionUtils;
 
 
 public class ParseUtils {
 			
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	public static void main(String[] args) throws IOException {
+		readSeqFileToLocal(args[0],args[1]);
 
 	}	
 	
@@ -51,5 +57,26 @@ public class ParseUtils {
 	        	}
 	        } 
 	     out.close();
+	}
+	
+	
+	public static void readSeqFileToLocal(String hdfsFile, String localFile)
+			throws IOException {
+		Configuration conf = new Configuration();
+		Path path = new Path(hdfsFile);
+		SequenceFile.Reader reader = null;
+		File dstFile = new File(localFile);
+		BufferedWriter out = new BufferedWriter(new FileWriter(dstFile));
+		try {
+			reader = new SequenceFile.Reader(conf, Reader.file(path));
+			Writable key = (Writable) ReflectionUtils.newInstance(reader.getKeyClass(), conf);
+			Writable value = (Writable) ReflectionUtils.newInstance(reader.getValueClass(), conf);
+			while (reader.next(key, value)) {
+				out.write(key + "," + value + "\r\n");
+			}
+			out.close();
+		} finally {
+			IOUtils.closeStream(reader);
+		}
 	}
 }
