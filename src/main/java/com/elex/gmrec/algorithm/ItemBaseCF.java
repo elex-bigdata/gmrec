@@ -52,6 +52,21 @@ public class ItemBaseCF implements StrLineParseTool {
 		return ToolRunner.run(new Configuration(), new RecommenderJob(), args);
 	}
 	
+	public static int cfSimParse() throws Exception{
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+		String out = PropertiesUtils.getGmRecRootFolder()+Constants.CFSIMOUTPUT;
+		HdfsUtils.delFile(fs, out);
+		List<String> argList = new ArrayList<String>();
+		argList.add(PropertiesUtils.getGmRecRootFolder()+Constants.CFTEMP);
+		argList.add(out);
+		argList.add(PropertiesUtils.getTopN());
+		argList.add(PropertiesUtils.getThreshold());
+		String[] args = new String[argList.size()];
+		argList.toArray(args);
+		return ToolRunner.run(new Configuration(), new SimilarityParse(),args);
+	}
+	
 	public static int recParse() throws Exception{
 		 String input = PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT;
 		 String output = PropertiesUtils.getGmRecRootFolder()+Constants.CFRECPARSE;

@@ -78,4 +78,13 @@ public class PropertiesUtils {
 		
 		return Double.parseDouble(pop.getProperty("arule.confidence"));
 	}
+	
+	public static String getTopN(){
+		return pop.getProperty("cfsim.topN");
+	}
+	
+	public static String getThreshold(){
+		return pop.getProperty("cfsim.threshold");
+	}
+
 }
