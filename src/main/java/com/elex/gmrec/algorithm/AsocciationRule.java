@@ -90,6 +90,7 @@ public class AsocciationRule {
         	            	gid = gidIntStrMap.get(Integer.parseInt(itemID.toString()));
         	            	sb.append(gid).append("\t").append("[");
         	            	ite = patterns.iterator();
+        	            	int i=0;
         	            	while(ite.hasNext()){
         	            		pattern = ite.next();
         	            		if(pattern.getFirst().size()==1){
@@ -98,12 +99,16 @@ public class AsocciationRule {
         	            			if(pattern.getSecond().doubleValue()/frequency.doubleValue() >= confidence){
         	            				sb.append("\"");
         	            				gid = gidIntStrMap.get(Integer.parseInt(pattern.getFirst().get(0)));
+        	            				sb.append(gid);
         	            				sb.append("\"");
         	            				sb.append(",");
+        	            				i++;
         	            			}       	            			
         	            		}
         	            	}
-        	            	out.write(Bytes.toBytes(new String(sb.toString().substring(0, sb.toString().length()-1)+"]\r\n")));
+        	            	if(i > 0){
+            	            	out.write(Bytes.toBytes(new String(sb.toString().substring(0, sb.toString().length()-1)+"]\r\n")));	
+        	            	}
         	            }        	            
         	           reader.close();
         	        
