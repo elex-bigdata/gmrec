@@ -241,7 +241,6 @@ public class DayRatingETL extends Configured implements Tool  {
 				}
 				
 				rate=rate>10?10:rate;
-				rate=rate<0.42?0:rate;
 				context.write(null,new Text(uid.toString()+","+gid+","+df.format(rate)+","+day));
 			}
 			

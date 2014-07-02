@@ -73,4 +73,9 @@ public class PropertiesUtils {
 	public static String getNumberFrequentItem(){
 		return pop.getProperty("fi.numberFrequentItem");
 	}
+
+	public static double getConfidence() {
+		
+		return Double.parseDouble(pop.getProperty("arule.confidence"));
+	}
 }
