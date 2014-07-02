@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.mahout.cf.taste.hadoop.item.RecommenderJob;
 
 import com.elex.gmrec.comm.Constants;
+import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.ParseUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 import com.elex.gmrec.comm.StrLineParseTool;
@@ -26,15 +28,23 @@ public class ItemBaseCF implements StrLineParseTool {
 	}
 	
 	public static void RunItemCf() throws Exception{
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+		String cfOut = PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT;
+		String cfTemp = PropertiesUtils.getGmRecRootFolder()+Constants.CFTEMP;
+		HdfsUtils.delFile(fs, cfOut);
+		HdfsUtils.delFile(fs, cfTemp);
 		List<String> argList = new ArrayList<String>();
 		argList.add("--input");
 		argList.add(PropertiesUtils.getGmRecRootFolder()+Constants.CFINPUT);
 		argList.add("--output");
-		argList.add(PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT);
+		argList.add(cfOut);
 		argList.add("--numRecommendations");
 		argList.add(PropertiesUtils.getCfNumOfRec());
 		argList.add("--similarityClassname");
 		argList.add(PropertiesUtils.getCfSimilarityClassname());
+		argList.add("--tempDir");
+		argList.add(cfTemp);
 		
 		String[] args = new String[argList.size()];
 		argList.toArray(args);
