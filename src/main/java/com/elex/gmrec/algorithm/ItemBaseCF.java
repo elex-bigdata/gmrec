@@ -66,6 +66,7 @@ public class ItemBaseCF implements StrLineParseTool {
 		argList.toArray(args);
 		return ToolRunner.run(new Configuration(), new SimilarityParse(),args);
 	}
+		
 	
 	public static int recParse() throws Exception{
 		 String input = PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT;
@@ -74,7 +75,7 @@ public class ItemBaseCF implements StrLineParseTool {
 		 return 0;
 	}
 	
-	
+		
 	public static int writeCfRecToRedis(){
 		return 0;
 	}

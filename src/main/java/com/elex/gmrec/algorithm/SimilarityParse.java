@@ -25,11 +25,14 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
+
+import com.elex.gmrec.etl.IDMapping;
 
 
 public class SimilarityParse extends Configured implements Tool {
@@ -50,8 +53,7 @@ public class SimilarityParse extends Configured implements Tool {
 			while (nonZeroElements.hasNext()) {
 				nonZeroElement = nonZeroElements.next();
 				nKey.set(key.toString());
-				item_pair_pref.set(nonZeroElement.index() + ","
-						+ df.format(nonZeroElement.get()));
+				item_pair_pref.set(nonZeroElement.index() + ","+ df.format(nonZeroElement.get()));
 				context.write(nKey, item_pair_pref);
 				nKey.set(nonZeroElement.index() + "");
 				item_pair_pref.set(key + "," + df.format(nonZeroElement.get()));
@@ -68,12 +70,14 @@ public class SimilarityParse extends Configured implements Tool {
 		private String[] itempref;
 		private int i;
 		private int loop;
-		private Text value = new Text();
 		private String dtoStr;
 		private Map<String, String> id_index_map = new HashMap<String, String>();
+		private  Map<Integer,String> gidMap;
 
 		public void reduce(Text key, Iterable<Text> values, Context context)
 				throws IOException, InterruptedException {
+			itemPairList.clear();
+			StringBuilder sb = new StringBuilder(200);
 			i = 0;
 			for (Text val : values) {
 				itempref = val.toString().split(",");
@@ -94,25 +98,30 @@ public class SimilarityParse extends Configured implements Tool {
 				loop = topN;
 			}
 
+			sb.append(gidMap.get(Integer.parseInt(id_index_map.get(key.toString())))).append("\t").append("[");
 			while (i < loop) {
-				dtoStr = ","
-						+ id_index_map.get(itemPairList.get(i).getDst_itemId())
-						+ "," + itemPairList.get(i).getPref();
-				if (!dtoStr.equals("") && dtoStr != null) {
-					value.set(id_index_map.get(key.toString()) + dtoStr);
-					context.write(null, value);
+				sb.append("{");
+				dtoStr ="\""+gidMap.get(Integer.parseInt(id_index_map.get(itemPairList.get(i).getDst_itemId()))) +"\"" + ":" + itemPairList.get(i).getPref();
+				sb.append(dtoStr);
+				sb.append("}");
+				if (i != loop-1) {
+					sb.append(",");					
 				}
 				i++;
 			}
-
-			itemPairList.clear();
+			if(loop>0){
+				context.write(null, new Text(sb.toString()+"]"));
+			}
+			
 
 		}
+				
 
 		protected void setup(Context context) throws IOException,
-				InterruptedException {
+				InterruptedException {			
+			gidMap = IDMapping.getGidIntStrMap();
+			
 			Configuration configuration = context.getConfiguration();
-
 			topN = Integer.parseInt(configuration.get("topN"));
 			range = Double.parseDouble(configuration.get("range")) / 100;
 
@@ -157,6 +166,7 @@ public class SimilarityParse extends Configured implements Tool {
 		job.setMapOutputValueClass(Text.class);
 		job.setReducerClass(MyReducer.class);
 		FileInputFormat.addInputPath(job, new Path(args[0]+ "/pairwiseSimilarity"));
+		job.setOutputFormatClass(TextOutputFormat.class);
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 		return 0;
