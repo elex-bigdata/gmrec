@@ -32,6 +32,7 @@ public class AsocciationRule {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		runFPG();
 		runARule();
 	}
 	
