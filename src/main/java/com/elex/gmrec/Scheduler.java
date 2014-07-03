@@ -1,6 +1,5 @@
 package com.elex.gmrec;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hadoop.conf.Configuration;

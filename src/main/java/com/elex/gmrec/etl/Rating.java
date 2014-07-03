@@ -1,4 +1,4 @@
-package com.elex.gmrec.etl;
+ package com.elex.gmrec.etl;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
@@ -35,6 +36,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.Constants;
+import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 
@@ -51,8 +53,9 @@ public class Rating extends Configured implements Tool  {
 	@Override
 	public int run(String[] args) throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		
+		String output;
 		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
         conf = HBaseConfiguration.create(conf);
         Job job = Job.getInstance(conf,"DayRatingETL");
         job.setJarByClass(Rating.class);
@@ -104,9 +107,13 @@ public class Rating extends Configured implements Tool  {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		if(PropertiesUtils.getIsInit()){
-			FileOutputFormat.setOutputPath(job, new Path(PropertiesUtils.getRatingFolder()+Constants.INITFOLDER));
+			output = PropertiesUtils.getRatingFolder()+Constants.INITFOLDER;
+			HdfsUtils.delFile(fs, output);
+			FileOutputFormat.setOutputPath(job, new Path(output));
 		}else{
-			FileOutputFormat.setOutputPath(job, new Path(PropertiesUtils.getRatingFolder()+"/"+sdf.format(new Date(before)).substring(0, 11).replace("-", "").trim()));
+			output = PropertiesUtils.getRatingFolder()+"/"+sdf.format(new Date(before)).substring(0, 11).replace("-", "").trim();
+			HdfsUtils.delFile(fs, output);
+			FileOutputFormat.setOutputPath(job, new Path(output));
 		}
 		
 		job.setOutputFormatClass(TextOutputFormat.class);

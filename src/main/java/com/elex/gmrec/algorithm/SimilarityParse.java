@@ -168,7 +168,6 @@ public class SimilarityParse extends Configured implements Tool {
 		FileInputFormat.addInputPath(job, new Path(args[0]+ "/pairwiseSimilarity"));
 		job.setOutputFormatClass(TextOutputFormat.class);
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
-		return 0;
+		return job.waitForCompletion(true) ? 0 : 1;
 	}
 }

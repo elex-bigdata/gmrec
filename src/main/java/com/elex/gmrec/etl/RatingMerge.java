@@ -67,7 +67,7 @@ public class RatingMerge extends Configured implements Tool  {
 		long now = System.currentTimeMillis();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		Set<Path> daySet = new HashSet<Path>();
-	
+		Path initPath = new Path(PropertiesUtils.getRatingFolder()+Constants.INITFOLDER);
 		for(int i=0;i<days;i++){
 			now = now- Long.valueOf(24L*60L*60L*1000L);
 			String day = sdf.format(new Date(now));
@@ -77,8 +77,9 @@ public class RatingMerge extends Configured implements Tool  {
 			}
 			
 		}
-		if(daySet.size()<days){
-			daySet.add(new Path(PropertiesUtils.getRatingFolder()+Constants.INITFOLDER));
+		if(daySet.size()<days && fs.exists(initPath)){
+			
+			daySet.add(initPath);
 		}
 		return daySet.toArray(new Path[daySet.size()]);
 	}
