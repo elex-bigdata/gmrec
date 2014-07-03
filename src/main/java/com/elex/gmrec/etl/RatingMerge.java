@@ -26,14 +26,14 @@ import org.apache.hadoop.util.ToolRunner;
 import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.PropertiesUtils;
 
-public class RatingMergeETL extends Configured implements Tool  {
+public class RatingMerge extends Configured implements Tool  {
 
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		ToolRunner.run(new Configuration(), new RatingMergeETL(), args);
+		ToolRunner.run(new Configuration(), new RatingMerge(), args);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class RatingMergeETL extends Configured implements Tool  {
 		FileSystem fs = FileSystem.get(conf);
 		Path[] inputDirs = getMergeInputFolders(fs);
 		Job job = Job.getInstance(conf,"ratingMergeETL");
-		job.setJarByClass(RatingMergeETL.class);
+		job.setJarByClass(RatingMerge.class);
 		job.setMapperClass(MyMapper.class);
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(Text.class);

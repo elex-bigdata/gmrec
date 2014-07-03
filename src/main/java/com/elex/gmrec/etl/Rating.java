@@ -38,14 +38,14 @@ import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 
-public class DayRatingETL extends Configured implements Tool  {
+public class Rating extends Configured implements Tool  {
 
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		ToolRunner.run(new Configuration(), new DayRatingETL(), args);
+		ToolRunner.run(new Configuration(), new Rating(), args);
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class DayRatingETL extends Configured implements Tool  {
 		Configuration conf = new Configuration();
         conf = HBaseConfiguration.create(conf);
         Job job = Job.getInstance(conf,"DayRatingETL");
-        job.setJarByClass(DayRatingETL.class);
+        job.setJarByClass(Rating.class);
         long now;
         long before;
         
