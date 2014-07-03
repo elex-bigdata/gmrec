@@ -41,7 +41,7 @@ public class SimilarityParse extends Configured implements Tool {
 			Mapper<IntWritable, VectorWritable, Text, Text> {
 
 		private Text nKey = new Text();
-		private DecimalFormat df = new DecimalFormat("#.###");;
+		private DecimalFormat df = new DecimalFormat("#.###");
 		private Iterator<Vector.Element> nonZeroElements = null;
 		private Vector.Element nonZeroElement = null;
 		private Text item_pair_pref = new Text();

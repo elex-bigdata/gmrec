@@ -1,6 +1,7 @@
 package com.elex.gmrec.algorithm;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +57,8 @@ public class AsocciationRule {
 	public static int runARule() throws IOException{
 		Map<Integer,String> gidIntStrMap = IDMapping.getGidIntStrMap();
 		double confidence = PropertiesUtils.getConfidence();
+		double theConfidence = 0D;
+		DecimalFormat df = new DecimalFormat("#.###");
 		String input = PropertiesUtils.getGmRecRootFolder()+Constants.FIOUTPUT+"/frequentpatterns";
 		String output= PropertiesUtils.getGmRecRootFolder()+Constants.ARULEOUTPUT;
 		
@@ -96,11 +99,15 @@ public class AsocciationRule {
         	            		if(pattern.getFirst().size()==1){
         	            			frequency = pattern.getSecond();
         	            		}else if(pattern.getFirst().size()==2){
-        	            			if(pattern.getSecond().doubleValue()/frequency.doubleValue() >= confidence){
+        	            			theConfidence = pattern.getSecond().doubleValue()/frequency.doubleValue();
+        	            			if(theConfidence >= confidence){
+        	            				sb.append("{");
         	            				sb.append("\"");
         	            				gid = gidIntStrMap.get(Integer.parseInt(pattern.getFirst().get(0)));
         	            				sb.append(gid);
         	            				sb.append("\"");
+        	            				sb.append(":\"").append(df.format(theConfidence)+"-"+pattern.getSecond()+"\"");
+        	            				sb.append("}");
         	            				sb.append(",");
         	            				i++;
         	            			}       	            			
