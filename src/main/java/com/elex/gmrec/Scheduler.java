@@ -64,17 +64,7 @@ public class Scheduler {
 			}
 			log.info("AR SUCCESS!!!");
 		}
-
-		// stage 3
-		if (shouldRunNextPhase(stageArgs, currentPhase)) {
-			log.info("LOAD START!!!");
-			success = load(args);
-			if (success != 0) {
-				log.error("LOAD ERROR!!!,SYSTEM EXIT!!!");
-				System.exit(success);
-			}
-			log.info("LOAD SUCCESS!!!");
-		}
+		
 		
 	}
 	

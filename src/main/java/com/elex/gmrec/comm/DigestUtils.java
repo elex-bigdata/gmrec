@@ -16,7 +16,7 @@ public class DigestUtils {
 	 * @throws NoSuchAlgorithmException 
 	 */
 	public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-		File file = new File("C:\\Users\\Administrator\\Desktop\\cfrec");
+		File file = new File(args[0]);
 		System.out.println(getDigest(file));
 	}
 	

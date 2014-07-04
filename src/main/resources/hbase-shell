@@ -4,4 +4,8 @@ import org.apache.hadoop.hbase.filter.CompareFilter
 import org.apache.hadoop.hbase.filter.SubstringComparator
 scan 'gm_user_action', {FILTER => org.apache.hadoop.hbase.filter.RowFilter.new(CompareFilter::CompareOp.valueOf('EQUAL'),SubstringComparator.new("uK2C3FOk8KBxihwAChfIAg6161"))}
 
-30 17 * * * /home/hadoop/rating.sh >> /home/hadoop/gmrec.log 2>&1 &
+
+crontab -e
+50 17 * * * sh /home/hadoop/rating.sh >> /home/hadoop/gmrec.log 2>&1 &
+
+sh test.sh /home/hadoop /gmrec
