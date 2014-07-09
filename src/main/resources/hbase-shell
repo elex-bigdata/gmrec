@@ -6,6 +6,14 @@ scan 'gm_user_action', {FILTER => org.apache.hadoop.hbase.filter.RowFilter.new(C
 
 
 crontab -e
-50 17 * * * sh /home/hadoop/rating.sh >> /home/hadoop/gmrec.log 2>&1 &
+50 17 * * * sh /home/hadoop/gmrec.sh /home/hadoop/rec /gmrec >> /home/hadoop/gmrec.log 2>&1 &
 
-sh test.sh /home/hadoop /gmrec
+
+
+#awk '{gsub(/\[|\]|\{|\}|\"/,"",$2);print $2}' cfrec | awk -F "," '{print $1,$NF}' OFS="\n" >> cfrec1
+
+awk '{gsub(/\[|\]|\{|\}|\"/,"",$2);print $2}' cfrec | awk -F "," '{ for (i=1;i<=NF;i++) print $i }' >> cfrec1
+
+awk -F ":" '{print $1}' cfrec1  | sort | uniq -c | sort -nr >> cfrec2
+
+#awk -F ":" '{print substr($1, 3, length($1)-3)}' cfrec1  | sort | uniq -c | sort -nr >> cfrec2

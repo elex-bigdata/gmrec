@@ -121,10 +121,6 @@ public class Scheduler {
 		return 0;
 	}
 	
-	public static int load(String[] args){
-		
-		return 0;
-	}
 	
 	protected static boolean shouldRunNextPhase(String[] args, AtomicInteger currentPhase) {
 	    int phase = currentPhase.getAndIncrement();
