@@ -30,14 +30,12 @@ public class TagCF implements StrLineParseTool{
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		prepare();
-		RunItemCf();
 		recParse();
 	}
 	
 	public static void prepare() throws Exception{
 	
-		String input = PropertiesUtils.getRatingFolder()+Constants.TAGCFIN;
+		String input = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFIN;
 		String output = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFINFINAL;
 		InputIndexer tool = new InputIndexer();
 		PrepareInputForCF.prepareInput(input,output,tool);

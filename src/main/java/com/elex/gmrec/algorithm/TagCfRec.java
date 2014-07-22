@@ -112,7 +112,7 @@ public class TagCfRec extends Configured implements Tool {
 			sb.append("[");
 			while(ite.hasNext()){
 				sb.append("{");			
-				sb.append("\""+ite.next()+"\":"+"null");
+				sb.append("\""+ite.next()+"\":"+"0");
 				sb.append("}");
 				i++;
 				if(i!=result.size()-1){

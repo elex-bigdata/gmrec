@@ -21,6 +21,6 @@ public class Constants {
 	public static final String TAGCFOUTPUT="/output/tagcf";
 	public static final String TAGCFTEMP="/tagcftemp";
 	public static final String TAGCFRECPARSE="/parse/tagcf";
-	public static final String TAGCFRECFINAL="/output/tagcfrec";
+	public static final String TAGCFRECFINAL="/output/tagcf-final";
 	
 }
