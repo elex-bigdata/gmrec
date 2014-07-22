@@ -139,7 +139,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 					ta.setTimes(1);
 					ta.setRate(Double.parseDouble(tv[1]));
 					userTagActionMap.put(tv[0], ta);
-					mos.write("hasgid", null,new Text(key.toString()+","+tag+","+tv[2])); 
+					mos.write("hasgid", null,new Text(key.toString()+","+tv[0]+","+tv[2])); 
 				}				
 			}
 			
