@@ -17,3 +17,6 @@ awk '{gsub(/\[|\]|\{|\}|\"/,"",$2);print $2}' cfrec | awk -F "," '{ for (i=1;i<=
 awk -F ":" '{print $1}' cfrec1  | sort | uniq -c | sort -nr >> cfrec2
 
 #awk -F ":" '{print substr($1, 3, length($1)-3)}' cfrec1  | sort | uniq -c | sort -nr >> cfrec2
+
+
+SELECT b.game_identify,GROUP_CONCAT(b.id SEPARATOR ':'),GROUP_CONCAT(b.tagname SEPARATOR ':') FROM(SELECT m.game_identify,t.id,t.tagname FROM www_tag t,www_tag_minigame_map m WHERE m.tag_id = t.id AND t.language = 'en' AND m.game_identify !='' ORDER BY m.game_identify)b GROUP BY b.game_identify

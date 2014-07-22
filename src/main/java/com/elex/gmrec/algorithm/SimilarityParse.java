@@ -48,7 +48,7 @@ public class SimilarityParse extends Configured implements Tool {
 
 		public void map(IntWritable key, VectorWritable value, Context context)
 				throws IOException, InterruptedException {
-
+			
 			nonZeroElements = value.get().iterateNonZero();
 			while (nonZeroElements.hasNext()) {
 				nonZeroElement = nonZeroElements.next();
@@ -57,7 +57,7 @@ public class SimilarityParse extends Configured implements Tool {
 				context.write(nKey, item_pair_pref);
 				nKey.set(nonZeroElement.index() + "");
 				item_pair_pref.set(key + "," + df.format(nonZeroElement.get()));
-				context.write(nKey, item_pair_pref);
+				context.write(nKey, item_pair_pref);//因为输入目录只包含了相似度矩阵的上半部分，还需要输出下半部分
 			}
 
 		}

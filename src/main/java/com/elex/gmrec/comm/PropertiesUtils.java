@@ -29,6 +29,10 @@ public class PropertiesUtils {
 		return Integer.parseInt(pop.getProperty("minutePerPopint"));
 	}
 	
+	public static int getTagRankTopN(){
+		return Integer.parseInt(pop.getProperty("tagranktopN"));
+	}
+	
 	public static boolean getIsInit(){
 		return pop.getProperty("isInit").equals("T")?true:false;
 	}
@@ -62,6 +66,10 @@ public class PropertiesUtils {
 		return pop.getProperty("cf.numOfRec");
 	}
 	
+	public static String getTagCfNumOfRec(){
+		return pop.getProperty("tagcf.numOfRec");
+	}
+	
 	public static String getCfSimilarityClassname(){
 		return pop.getProperty("cf.SimilarityClassname");
 	}
@@ -85,6 +93,10 @@ public class PropertiesUtils {
 	
 	public static String getThreshold(){
 		return pop.getProperty("cfsim.threshold");
+	}
+	
+	public static String getTagFile(){
+		return pop.getProperty("tagFile");
 	}
 
 }

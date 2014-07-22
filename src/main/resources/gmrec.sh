@@ -23,3 +23,5 @@ rm -rf $1'/arrec'
 mkdir $1'/arrec'
 mv $ar $1'/arrec/'$armd5 
 echo "arrec load success !!!"
+scp -r /home/hadoop/rec elex@162.243.114.236:~
+echo "copy result to vps sucess !!!"
