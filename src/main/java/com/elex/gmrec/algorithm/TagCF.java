@@ -1,6 +1,8 @@
 package com.elex.gmrec.algorithm;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,10 +11,6 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.SequenceFile.Reader;
-import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.Constants;
@@ -95,13 +93,14 @@ public class TagCF implements StrLineParseTool{
 	public static Map<String,String> getTagTopNMap() throws IOException{
 		 Map<String,String> tagTopN = new HashMap<String,String>();
 		 Configuration conf=new Configuration();
-		 Path output = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGRANKOUT);
-		 SequenceFile.Reader reader=null;
-		 reader=new SequenceFile.Reader(conf,Reader.file(output));
-		 Writable key=(Writable)ReflectionUtils.newInstance(reader.getKeyClass(),conf);
-		 Writable value=(Writable)ReflectionUtils.newInstance(reader.getValueClass(), conf);
-		 while(reader.next(key,value)){	
-			 tagTopN.put(key.toString(), value.toString());
+		 FileSystem fs = FileSystem.get(conf);
+		 Path output = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGRANKOUT+"part-r-00000");
+		 BufferedReader reader=new BufferedReader(new InputStreamReader(fs.open(output)));
+		 String line = reader.readLine();
+		 while(line != null){
+			 String[] kv = line.split("\\s");
+			 tagTopN.put(kv[0], kv[1]);
+			 line = reader.readLine();
 		 }
 		 reader.close();
 		 return tagTopN;
