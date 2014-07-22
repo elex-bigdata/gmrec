@@ -39,7 +39,7 @@ public class ParseUtils {
 	     BufferedReader reader = null;
 	     Path dist = new Path(output);
 	     HdfsUtils.delFile(fs, dist.toString());
-	     FSDataOutputStream out = fs.create(dist);
+	     FSDataOutputStream out = fs.create(dist, true, 8192);
 	     
 	     for(FileStatus file:files){
 	        	
