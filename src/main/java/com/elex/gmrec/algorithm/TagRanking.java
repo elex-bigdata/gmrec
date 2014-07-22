@@ -47,13 +47,13 @@ public class TagRanking extends Configured implements Tool {
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		
-		FileStatus[] files = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGCFIN),new PathFilter() {
-		    @Override
-		    public boolean accept(Path path) {
-		      String name = path.getName();
-		      return name.startsWith("hasgid");
-		    }
-		  });
+		FileStatus[] oldFiles = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGRANK),new RankFileFilter());
+		
+		for (int i = 0; i < oldFiles.length; i++) {
+			fs.delete(oldFiles[i].getPath(), true);
+		}
+				
+		FileStatus[] files = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGCFIN),new RankFileFilter());
 		
 		for (int i = 0; i < files.length; i++) {
 			HdfsUtils.backupFile(fs,conf,files[i].getPath().toString(), PropertiesUtils.getGmRecRootFolder() + Constants.TAGRANK+files[i].getPath().getName());
@@ -138,5 +138,15 @@ public class TagRanking extends Configured implements Tool {
 			context.write(new Text(key.toString()), new Text(sb.substring(0,sb.toString().length()-1)));
 			
 		}		
+	}
+	
+	static class RankFileFilter implements PathFilter{
+
+		@Override
+		public boolean accept(Path path) {
+			String name = path.getName();
+		     return name.startsWith("hasgid");
+		}
+		
 	}
 }
