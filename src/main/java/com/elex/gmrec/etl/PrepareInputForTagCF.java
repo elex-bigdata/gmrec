@@ -57,7 +57,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		job.setInputFormatClass(TextInputFormat.class);
-		Path in = new Path(PropertiesUtils.getGmRecRootFolder() + Constants.MERGEFOLDER);
+		Path in = new Path(PropertiesUtils.getRatingFolder() + Constants.MERGEFOLDER);
 		FileInputFormat.addInputPath(job, in);
 		job.setOutputFormatClass(TextOutputFormat.class);
 
@@ -75,6 +75,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		private Map<String,String> GMTagMap = new HashMap<String,String>();
 		private String[] vList;
 		private String[] tagList;
+		private String tags;
 		@Override
 		protected void setup(Context context) throws IOException,InterruptedException {
 			configuration = HBaseConfiguration.create();
@@ -101,10 +102,15 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 			vList = value.toString().split(",");
 			
 			if (vList.length == 3) {
-				tagList = GMTagMap.get(vList[1]).split(":");
-				for(String tag:tagList){
-					context.write(new Text(vList[0]), new Text(tag+","+vList[2]+","+vList[1]));
-				}			
+				
+				tags = GMTagMap.get(vList[1]);
+				if(tags!=null){
+					tagList = tags.split(":");
+					for(String tag:tagList){
+						context.write(new Text(vList[0]), new Text(tag+","+vList[2]+","+vList[1]));
+					}
+				}
+							
 			}
 		}
 	}

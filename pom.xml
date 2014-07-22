@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.elex.gmrec</groupId>
 	<artifactId>gmrec</artifactId>
-	<version>1.0</version>
+	<version>2.0</version>
 	<name>game-recommend</name>
 	<packaging>jar</packaging>
 
