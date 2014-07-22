@@ -126,7 +126,7 @@ public class TagRanking extends Configured implements Tool {
 			
 			size = list.size()>size?size:list.size();
 			
-			Iterator<Entry<String, Integer>> ite = list.iterator();
+			Iterator<Entry<String, Integer>> ite = list.subList(0, size).iterator();
 			StringBuffer sb = new StringBuffer(200);
 			
 			while(ite.hasNext()){
