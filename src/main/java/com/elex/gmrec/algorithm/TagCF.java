@@ -37,7 +37,7 @@ public class TagCF implements StrLineParseTool{
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		String cfOut = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFOUTPUT;
-		String cfTemp = PropertiesUtils.getGmRecRootFolder()+Constants.CFTEMP;
+		String cfTemp = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFTEMP;
 		HdfsUtils.delFile(fs, cfOut);
 		HdfsUtils.delFile(fs, cfTemp);
 		List<String> argList = new ArrayList<String>();
@@ -63,7 +63,7 @@ public class TagCF implements StrLineParseTool{
 	public static int recParse() throws Exception{
 		 String input = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFOUTPUT;
 		 String output = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFRECPARSE;
-		 ParseUtils.parseTextOutput(input, output, new ItemBaseCF());
+		 ParseUtils.parseTextOutput(input, output, new TagCF());
 		 return 0;
 	}
 	
