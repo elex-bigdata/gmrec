@@ -21,8 +21,13 @@ public class PrepareInputForCF  implements StrLineParseTool{
 	public static int prepareInput() throws Exception{
 		String input = PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER;
 		String output = PropertiesUtils.getGmRecRootFolder()+Constants.CFINPUT;
-		ParseUtils.parseTextOutput(input, output, new PrepareInputForCF());
+		PrepareInputForCF tool = new PrepareInputForCF();
+		prepareInput(input,output,tool);
 		return 0;
+	}
+	
+	public static void prepareInput(String input,String output,StrLineParseTool tool) throws Exception{
+		ParseUtils.parseTextOutput(input, output, tool);
 	}
 
 
@@ -32,6 +37,7 @@ public class PrepareInputForCF  implements StrLineParseTool{
 	    Map<String,Integer> gidMap = IDMapping.getGidStrIntMap();
 		
 		String[] vList = line.split(",");
+		
     	if(vList.length==3){
         	return new String(Integer.toString(uidMap.get(vList[0]))+","+Integer.toString(gidMap.get(vList[1]))+","+vList[2]+"\r\n");
     	}

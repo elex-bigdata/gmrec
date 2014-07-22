@@ -81,7 +81,14 @@ public class IDMapping {
 
 	public static int createIdMappingFile() throws IOException{
 		String uri = PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER;
-        Configuration conf = new Configuration();
+		String uid = PropertiesUtils.getGmRecRootFolder()+Constants.UIDMAPPINGFILE;
+		String gid = PropertiesUtils.getGmRecRootFolder()+Constants.GIDMAPPINGFILE;
+		
+		return createIdMappingFile(uri,uid,gid);
+	}
+	
+	public static int createIdMappingFile(String uri,String uid,String gid) throws IOException{
+		Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(conf);
         FileStatus[] files = fs.listStatus(new Path(uri));
         Path hdfs_src;
@@ -112,15 +119,15 @@ public class IDMapping {
         	}
         } 
         
-        Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.UIDMAPPINGFILE);
+        Path uidMappingFile = new Path(uid);
         HdfsUtils.delFile(fs, uidMappingFile.toString());
         writeSetToFile(fs,uidSet,uidMappingFile);
         
-        Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GIDMAPPINGFILE);
+        Path gidMappingFile = new Path(gid);
         HdfsUtils.delFile(fs, gidMappingFile.toString());
         writeSetToFile(fs,gidSet,gidMappingFile);
-        
-        return 0;
+		
+		return 0;		
 	}
 	
 	public static void writeSetToFile(FileSystem fs, Set<String> set,Path dest) throws IOException{

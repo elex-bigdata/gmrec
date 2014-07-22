@@ -21,6 +21,7 @@ import com.elex.gmrec.comm.ParseUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 import com.elex.gmrec.comm.StrLineParseTool;
 import com.elex.gmrec.etl.IDMapping;
+import com.elex.gmrec.etl.PrepareInputForCF;
 
 public class TagCF implements StrLineParseTool{
 
@@ -29,8 +30,18 @@ public class TagCF implements StrLineParseTool{
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		prepare();
 		RunItemCf();
 		recParse();
+	}
+	
+	public static void prepare() throws Exception{
+	
+		String input = PropertiesUtils.getRatingFolder()+Constants.TAGCFIN;
+		String output = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFINFINAL;
+		InputIndexer tool = new InputIndexer();
+		PrepareInputForCF.prepareInput(input,output,tool);
+		
 	}
 	
 	public static int RunItemCf() throws Exception{
@@ -42,7 +53,7 @@ public class TagCF implements StrLineParseTool{
 		HdfsUtils.delFile(fs, cfTemp);
 		List<String> argList = new ArrayList<String>();
 		argList.add("--input");
-		argList.add(PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFIN);
+		argList.add(PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFINFINAL);
 		argList.add("--output");
 		argList.add(cfOut);
 		argList.add("--numRecommendations");
@@ -96,6 +107,22 @@ public class TagCF implements StrLineParseTool{
 		 }
 		 reader.close();
 		 return tagTopN;
+	}
+	
+	static class InputIndexer implements StrLineParseTool{
+
+		@Override
+		public String parse(String line) throws Exception {
+			Map<String,Integer> uidMap = IDMapping.getUidStrIntMap();
+			
+			String[] vList = line.split(",");
+			
+	    	if(vList.length==3){
+	        	return new String(Integer.toString(uidMap.get(vList[0]))+","+vList[1]+","+vList[2]+"\r\n");
+	    	}
+			return null;
+		}
+		
 	}
 	
 }
