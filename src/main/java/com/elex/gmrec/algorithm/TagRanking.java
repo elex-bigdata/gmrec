@@ -1,4 +1,4 @@
-package com.elex.gmrec.algorithm;
+	package com.elex.gmrec.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,7 +99,6 @@ public class TagRanking extends Configured implements Tool {
 	}
 	
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {
-		Map<String,Integer> gcMap = new HashMap<String,Integer>();
 		int count = 0;
 		String gid;
 		int size = PropertiesUtils.getTagRankTopN();
@@ -107,10 +106,10 @@ public class TagRanking extends Configured implements Tool {
 		
 		@Override
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
-			gcMap.clear();
-			for(Text gid:values){
-				count = gcMap.get(gid)!=null?gcMap.get(gid)+1:1;
-				gcMap.put(gid.toString(), count);
+			Map<String,Integer> gcMap = new HashMap<String,Integer>();
+			for(Text gm:values){
+				count = gcMap.get(gm.toString())!=null?gcMap.get(gm.toString())+1:1;
+				gcMap.put(gm.toString(), count);
 			}
 			List<Map.Entry<String,Integer>> list = new ArrayList<Map.Entry<String,Integer>>(gcMap.entrySet());
 			

@@ -94,7 +94,7 @@ public class TagCF implements StrLineParseTool{
 		for(String item:items){
 			sb.append(tagTopN.get(item.split(":")[0])).append(",");
 		}					
-		return sb.substring(0, sb.toString().length()-1);
+		return sb.substring(0, sb.toString().length()-1)+"\r\n";
 	}
 	
 	public static Map<String,String> getTagTopNMap() throws IOException{
