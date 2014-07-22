@@ -24,4 +24,9 @@ awk '{gsub(/\[|\]|\{|\}|\"/,"",$2);print $2}' tagcf |awk -F "," '{ for (i=1;i<=N
 #按tag和gid排序分析，输入数据时hasgid的输出
 awk -F "," '{print $2,$3}' tagrank | sort | uniq -c | sort -nr >> tagsort
 
+awk -F "," '{print $1}' cfinput | sort |uniq -c|sort -nr >> ana
+awk '{if ($1==1) print $2}' ana |wc -l
+awk '{if ($1>1 && $1<4) print $2}' ana | wc -l
+
+
 SELECT b.game_identify,GROUP_CONCAT(b.id SEPARATOR ':'),GROUP_CONCAT(b.tagname SEPARATOR ':') FROM(SELECT m.game_identify,t.id,t.tagname FROM www_tag t,www_tag_minigame_map m WHERE m.tag_id = t.id AND t.language = 'en' AND m.game_identify !='' ORDER BY m.game_identify)b GROUP BY b.game_identify

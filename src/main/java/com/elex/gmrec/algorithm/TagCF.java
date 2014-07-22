@@ -33,6 +33,8 @@ public class TagCF implements StrLineParseTool{
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		prepare();
+		RunItemCf();
 		recParse();
 	}
 	
@@ -67,7 +69,7 @@ public class TagCF implements StrLineParseTool{
 		String[] args = new String[argList.size()];
 		argList.toArray(args);
 		
-		return ToolRunner.run(new Configuration(), new RecommenderJob(), args);
+		return ToolRunner.run(new Configuration(), new org.apache.mahout.cf.taste.hadoop.item.RecommenderJob(), args);
 	}
 	
 		
