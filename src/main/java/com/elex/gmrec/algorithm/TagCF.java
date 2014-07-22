@@ -23,6 +23,11 @@ import com.elex.gmrec.etl.PrepareInputForCF;
 
 public class TagCF implements StrLineParseTool{
 
+	
+
+	private Map<String,String> tagTopN;
+	
+	
 	/**
 	 * @param args
 	 * @throws Exception 
@@ -77,13 +82,15 @@ public class TagCF implements StrLineParseTool{
 	@Override
 	public String parse(String line) throws Exception {		
 		Map<Integer,String> uidMap = IDMapping.getUidIntStrMap();	
-		Map<String,String> tagTopN = getTagTopNMap();
+		if(tagTopN==null){
+			tagTopN = getTagTopNMap();
+		}
 	    String[] kv = line.toString().split("\\s");
 	    String uid = uidMap.get(Integer.parseInt(kv[0].trim()));
 		String itemStr = kv[1].trim().replace("[", "").replace("]", "");
 		String[] items = itemStr.split(",");
 		StringBuffer sb = new StringBuffer(200);
-		sb.append(uid+"\\t");
+		sb.append(uid+"\t");
 		for(String item:items){
 			sb.append(tagTopN.get(item.split(":")[0])).append(",");
 		}					
