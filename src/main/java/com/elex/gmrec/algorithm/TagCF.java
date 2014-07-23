@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
-import com.elex.gmrec.comm.ParseUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 import com.elex.gmrec.comm.StrLineParseTool;
 import com.elex.gmrec.etl.IDMapping;
@@ -25,7 +25,7 @@ public class TagCF implements StrLineParseTool{
 
 	
 
-	private Map<String,String> tagTopN;
+	//private Map<String,String> tagTopN;
 	
 	
 	/**
@@ -35,14 +35,13 @@ public class TagCF implements StrLineParseTool{
 	public static void main(String[] args) throws Exception {
 		prepare();
 		RunItemCf();
-		recParse();
 	}
 	
 	public static void prepare() throws Exception{
-	
+			
 		String input = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFIN;
 		String output = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFINFINAL;
-		InputIndexer tool = new InputIndexer();
+		StrLineParseTool tool = new TagCF();
 		PrepareInputForCF.prepareInput(input,output,tool);
 		
 	}
@@ -74,14 +73,14 @@ public class TagCF implements StrLineParseTool{
 	
 		
 	
-	public static int recParse() throws Exception{
+	/*public static int recParse() throws Exception{
 		 String input = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFOUTPUT;
 		 String output = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFRECPARSE;
 		 ParseUtils.parseTextOutput(input, output, new TagCF());
 		 return 0;
-	}
+	}*/
 	
-	@Override
+	/*@Override
 	public String parse(String line) throws Exception {		
 		Map<Integer,String> uidMap = IDMapping.getUidIntStrMap();	
 		if(tagTopN==null){
@@ -97,38 +96,45 @@ public class TagCF implements StrLineParseTool{
 			sb.append(tagTopN.get(item.split(":")[0])).append(",");
 		}					
 		return sb.substring(0, sb.toString().length()-1)+"\r\n";
-	}
+	}*/
 	
-	public static Map<String,String> getTagTopNMap() throws IOException{
-		 Map<String,String> tagTopN = new HashMap<String,String>();
-		 Configuration conf=new Configuration();
-		 FileSystem fs = FileSystem.get(conf);
-		 Path output = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGRANKOUT+"part-r-00000");
-		 BufferedReader reader=new BufferedReader(new InputStreamReader(fs.open(output)));
-		 String line = reader.readLine();
-		 while(line != null){
-			 String[] kv = line.split("\\s");
-			 tagTopN.put(kv[0], kv[1]);
-			 line = reader.readLine();
-		 }
-		 reader.close();
-		 return tagTopN;
-	}
-	
-	static class InputIndexer implements StrLineParseTool{
+	public static Map<String, String> getTagTopNMap() throws IOException {
+		Map<String, String> tagTopN = new HashMap<String, String>();
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+		Path output = new Path(PropertiesUtils.getGmRecRootFolder()+ Constants.TAGRANKOUT);
+		FileStatus[] files = fs.listStatus(output);
+		Path hdfs_src;
+		for (FileStatus file : files) {
+			if (!file.isDirectory()) {
+				hdfs_src = file.getPath();
+				if (file.getPath().getName().contains("part")) {
+					BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(hdfs_src)));
+					String line = reader.readLine();
+					while (line != null) {
+						String[] kv = line.split("\\s");					
+						tagTopN.put(kv[0], kv[1]);
+						line = reader.readLine();
+					}
+					reader.close();
+				}
 
-		@Override
-		public String parse(String line) throws Exception {
-			Map<String,Integer> uidMap = IDMapping.getUidStrIntMap();
-			
-			String[] vList = line.split(",");
-			
-	    	if(vList.length==3){
-	        	return new String(Integer.toString(uidMap.get(vList[0]))+","+vList[1]+","+vList[2]+"\r\n");
-	    	}
-			return null;
+			}
+
 		}
+		return tagTopN;
+	}
+	
+	@Override
+	public String parse(String line) throws Exception {
+		Map<String,Integer> uidMap = IDMapping.getUidStrIntMap();
 		
+		String[] vList = line.split(",");
+		
+    	if(vList.length==3){
+        	return new String(Integer.toString(uidMap.get(vList[0]))+","+vList[1]+","+vList[2]+"\r\n");
+    	}
+		return null;
 	}
 	
 }

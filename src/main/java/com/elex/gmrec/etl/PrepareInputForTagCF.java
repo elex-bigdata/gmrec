@@ -2,14 +2,21 @@ package com.elex.gmrec.etl;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.HTable;
@@ -46,6 +53,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 
 	@Override
 	public int run(String[] args) throws Exception {
+		int result = 1;
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		Job job = Job.getInstance(conf, "prepareInputForTagCF");
@@ -61,13 +69,59 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		FileInputFormat.addInputPath(job, in);
 		job.setOutputFormatClass(TextOutputFormat.class);
 
-		MultipleOutputs.addNamedOutput(job, "hasgid", TextOutputFormat.class, Text.class, Text.class);  
+		MultipleOutputs.addNamedOutput(job, "hasgid", TextOutputFormat.class, Text.class, Text.class);
+		MultipleOutputs.addNamedOutput(job, "tagtopN", TextOutputFormat.class, Text.class, Text.class);
 		Path output = new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGCFIN);
 		HdfsUtils.delFile(fs, output.toString());
 		FileOutputFormat.setOutputPath(job, output);
 
-		return job.waitForCompletion(true) ? 0 : 1;
+		result = job.waitForCompletion(true) ? 0 : 1;
+		if(result == 0){
+			moveTagRankInpupt();
+			moveUserTagTopN();
+			return 0;
+		}else{
+			return 1;
+		}
+		
 	}
+	
+	public static void moveTagRankInpupt() throws IOException{
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+		
+		FileStatus[] oldFiles = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGRANK),new RankFileFilter());
+		
+		for (int i = 0; i < oldFiles.length; i++) {
+			fs.delete(oldFiles[i].getPath(), true);
+		}
+				
+		FileStatus[] files = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGCFIN),new RankFileFilter());
+		
+		for (int i = 0; i < files.length; i++) {
+			HdfsUtils.backupFile(fs,conf,files[i].getPath().toString(), PropertiesUtils.getGmRecRootFolder() + Constants.TAGRANK+files[i].getPath().getName());
+			fs.delete(files[i].getPath(), true);			
+		}
+	}
+	
+	public static void moveUserTagTopN() throws IOException{
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+		
+		FileStatus[] oldFiles = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGTOPNIN),new TopNFilter());
+		
+		for (int i = 0; i < oldFiles.length; i++) {
+			fs.delete(oldFiles[i].getPath(), true);
+		}
+				
+		FileStatus[] files = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGCFIN),new TopNFilter());
+		
+		for (int i = 0; i < files.length; i++) {
+			HdfsUtils.backupFile(fs,conf,files[i].getPath().toString(), PropertiesUtils.getGmRecRootFolder() + Constants.TAGTOPNIN+files[i].getPath().getName());
+			fs.delete(files[i].getPath(), true);			
+		}
+	}
+		
 
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
 		private HTable gm;
@@ -122,10 +176,16 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		private String tag;
 		private DecimalFormat df = new DecimalFormat("#.###");
 		private MultipleOutputs<Text, Text> mos;  
+		private MultipleOutputs<Text, Text> tagTopN;
+		private int size = PropertiesUtils.getUserTagTopN();
+		private Entry<String, TagAction> entry;
+		private String tagId;
+		private int times;
 		
 		@Override
 		protected void setup(Context context) throws IOException,InterruptedException {
 			mos = new MultipleOutputs<Text, Text>(context);// 初始化mos
+			tagTopN = new MultipleOutputs<Text, Text>(context);
 		}
 
 		@Override
@@ -143,6 +203,37 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 				}				
 			}
 			
+			
+			//==============================================================
+            List<Map.Entry<String,TagAction>> list = new ArrayList<Map.Entry<String,TagAction>>(userTagActionMap.entrySet());
+			
+			Collections.sort(list,new Comparator<Map.Entry<String,TagAction>>() {
+	            //降序排列
+				@Override
+				public int compare(Entry<String, TagAction> o1,
+						Entry<String, TagAction> o2) {
+					return Integer.valueOf(o2.getValue().getTimes()).compareTo(Integer.valueOf(o1.getValue().getTimes()));
+				}
+	            
+	        });
+			
+			size = list.size()>size?size:list.size();
+			
+			Iterator<Entry<String, TagAction>> topN = list.subList(0, size).iterator();
+			StringBuffer sb = new StringBuffer(200);
+			
+			while(topN.hasNext()){
+				entry = topN.next();
+				tagId = entry.getKey();
+				times = entry.getValue().getTimes();
+				sb.append(tagId+":"+times).append(",");
+				
+			}
+				
+			tagTopN.write("tagtopN",new Text(key.toString()), new Text(sb.substring(0,sb.toString().length()-1)));
+			
+			//===============================================================
+			
 			Iterator<String> tagIte = userTagActionMap.keySet().iterator();
 			
 			while(tagIte.hasNext()){
@@ -155,6 +246,28 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		@Override
 		protected void cleanup(Context context) throws IOException,InterruptedException {
 			mos.close();// 释放资源
+			tagTopN.close();
 		}
+	}
+	
+	static class RankFileFilter implements PathFilter{
+
+		@Override
+		public boolean accept(Path path) {
+			String name = path.getName();
+		     return name.startsWith("hasgid");
+		}
+		
+	}
+	
+	
+	static class TopNFilter implements PathFilter{
+
+		@Override
+		public boolean accept(Path path) {
+			String name = path.getName();
+		     return name.startsWith("tagtopN");
+		}
+		
 	}
 }

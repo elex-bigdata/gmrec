@@ -19,8 +19,7 @@ awk -F ":" '{print $1}' cfrec1  | sort | uniq -c | sort -nr >> cfrec2
 #awk -F ":" '{print substr($1, 3, length($1)-3)}' cfrec1  | sort | uniq -c | sort -nr >> cfrec2
 
 #按标签推荐的结果分析，输入数据时tagcf的输出
-awk '{gsub(/\[|\]|\{|\}|\"/,"",$2);print $2}' tagcf |awk -F "," '{ for (i=1;i<=NF;i++) print $i }' | awk -F ":" '{print $1}' |sort | uniq -c | sort -nr >> taganalyze
-
+awk '{gsub(/\[|\]|\{|\}|\"/,"",$2);print $2}' tagcf |awk -F "," '{ for (i=1;i<=NF;i++) print $i }' | awk -F ":" '{if ($2>1) print $1}' |sort | uniq -c | sort -nr >> taganalyze
 #按tag和gid排序分析，输入数据时hasgid的输出
 awk -F "," '{print $2,$3}' tagrank | sort | uniq -c | sort -nr >> tagsort
 

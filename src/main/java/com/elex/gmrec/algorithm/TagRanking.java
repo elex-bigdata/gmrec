@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
@@ -39,27 +38,9 @@ public class TagRanking extends Configured implements Tool {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		prepareInput();
 		ToolRunner.run(new Configuration(), new TagRanking(), args);
 	}
 	
-	public static void prepareInput() throws IOException{
-		Configuration conf = new Configuration();
-		FileSystem fs = FileSystem.get(conf);
-		
-		FileStatus[] oldFiles = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGRANK),new RankFileFilter());
-		
-		for (int i = 0; i < oldFiles.length; i++) {
-			fs.delete(oldFiles[i].getPath(), true);
-		}
-				
-		FileStatus[] files = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGCFIN),new RankFileFilter());
-		
-		for (int i = 0; i < files.length; i++) {
-			HdfsUtils.backupFile(fs,conf,files[i].getPath().toString(), PropertiesUtils.getGmRecRootFolder() + Constants.TAGRANK+files[i].getPath().getName());
-			fs.delete(files[i].getPath(), true);			
-		}
-	}
 
 	@Override
 	public int run(String[] args) throws Exception {
@@ -100,8 +81,8 @@ public class TagRanking extends Configured implements Tool {
 	
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {
 		int count = 0;
-		String gid;
-		int size = PropertiesUtils.getTagRankTopN();
+		double  topRate = PropertiesUtils.getTagRankTopRate();
+		int size = 1;
 		Entry<String,Integer> entry;
 		
 		@Override
@@ -123,15 +104,14 @@ public class TagRanking extends Configured implements Tool {
 	            
 	        });
 			
-			size = list.size()>size?size:list.size();
+			size = (int) Math.ceil(list.size()*topRate);
 			
 			Iterator<Entry<String, Integer>> ite = list.subList(0, size).iterator();
 			StringBuffer sb = new StringBuffer(200);
 			
 			while(ite.hasNext()){
 				entry = ite.next();
-				gid = entry.getKey();
-				sb.append(gid).append(",");
+				sb.append(entry.getKey()+":"+entry.getValue()).append(",");
 				
 			}
 			context.write(new Text(key.toString()), new Text(sb.substring(0,sb.toString().length()-1)));
@@ -139,13 +119,4 @@ public class TagRanking extends Configured implements Tool {
 		}		
 	}
 	
-	static class RankFileFilter implements PathFilter{
-
-		@Override
-		public boolean accept(Path path) {
-			String name = path.getName();
-		     return name.startsWith("hasgid");
-		}
-		
-	}
 }

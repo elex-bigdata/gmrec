@@ -29,8 +29,8 @@ public class PropertiesUtils {
 		return Integer.parseInt(pop.getProperty("minutePerPopint"));
 	}
 	
-	public static int getTagRankTopN(){
-		return Integer.parseInt(pop.getProperty("tagranktopN"));
+	public static double getTagRankTopRate(){
+		return Double.parseDouble(pop.getProperty("tag.rank.top.rate"));
 	}
 	
 	public static boolean getIsInit(){
@@ -47,6 +47,10 @@ public class PropertiesUtils {
 	
 	public static int getSatisfyMinute(){
 		return Integer.parseInt(pop.getProperty("satisfyMinute"));
+	}
+	
+	public static int getUserTagTopN(){
+		return Integer.parseInt(pop.getProperty("user.tag.topN"));
 	}
 	
 	
