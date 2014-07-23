@@ -20,8 +20,7 @@ public class Constants {
 	public static final String TAGRANKOUT="/output/tagrank/";
 	public static final String TAGCFOUTPUT="/output/tagcf";
 	public static final String TAGCFTEMP="/tagcftemp";
-	public static final String TAGCFRECPARSE="/parse/tagcf";
 	public static final String TAGCFRECFINAL="/output/tagcf-final";
-	public static final String TAGTOPNIN="/input/user-tag-topN/";
+	public static final String USERTOPTAG="/input/user-tag-topN/";
 	
 }

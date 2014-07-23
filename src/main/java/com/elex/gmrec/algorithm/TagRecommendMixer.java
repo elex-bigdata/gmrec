@@ -2,7 +2,9 @@ package com.elex.gmrec.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,8 +59,8 @@ public class TagRecommendMixer extends Configured implements Tool {
 		FileInputFormat.addInputPath(job, rating);	
 		Path tagcfout = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFOUTPUT);
 		FileInputFormat.addInputPath(job, tagcfout);
-		Path tagRankOut = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGTOPNIN);
-		FileInputFormat.addInputPath(job, tagRankOut);
+		Path userTopTag = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.USERTOPTAG);
+		FileInputFormat.addInputPath(job, userTopTag);
 		
 		job.setOutputFormatClass(TextOutputFormat.class);
 		
@@ -82,7 +84,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 			}else if(pathName.contains(Constants.TAGCFOUTPUT)){
 				list = value.toString().split("\\s");
 				context.write(new Text(list[0]), new Text("02_"+parseTagCFRec(list[1])));
-			}else if(pathName.contains(Constants.TAGTOPNIN)){
+			}else if(pathName.contains(Constants.USERTOPTAG)){
 				list = value.toString().split("\\s");
 				context.write(new Text(list[0]), new Text("02_"+parseUserTagTopN(list[1])));
 			}
@@ -122,12 +124,11 @@ public class TagRecommendMixer extends Configured implements Tool {
 	
 	
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {
-		Map<String,String> tagTopN;
+		Map<String,List<String>> tagTopN;
 		Set<String> hasPlaySet = new HashSet<String>();
-		Set<String> recSet = new HashSet<String>();
-		Set<String> result = new HashSet<String>();		
+		List<String> recSet = new ArrayList<String>();	
+		Set<String> result = new HashSet<String>();
 		int index[];
-		List<String> list = new ArrayList<String>();
 		
 		@Override
 		protected void setup(Context context) throws IOException,InterruptedException {
@@ -142,56 +143,43 @@ public class TagRecommendMixer extends Configured implements Tool {
 			int size = Integer.parseInt(PropertiesUtils.getCfNumOfRec());
 			hasPlaySet.clear();
 			recSet.clear();
+			
 			for(Text line:values){
 				if(line.toString().startsWith("01_")){
 					hasPlaySet.add(line.toString().substring(3, line.toString().length()));					
 				}else if(line.toString().startsWith("02_")){
 					String[] list = line.toString().substring(3, line.toString().length()).split(",");
 					for(String tagId:list ){
-						recSet.addAll(getTopGmByTagId(tagId));					
+						recSet.addAll(tagTopN.get(tagId));					
 					}					
 				}				
 			}
 			
-			result.clear();
-			result.addAll(recSet);
-			result.removeAll(hasPlaySet);
+			recSet.removeAll(hasPlaySet);
 			
-			size = result.size()>size?size:result.size();
-			index = RandomUtils.randomArray(0,result.size()-1,size);
-			list.addAll(result);
+			size = recSet.size()>size?size:recSet.size();
+			index = RandomUtils.randomArray(0,recSet.size()-1,size);
+			
+			result.clear();
+			for(int i=0;i<size;i++){
+				result.add(recSet.get(index[i]));
+			}
+			
+			Iterator<String> ite =  result.iterator();
 			
 			StringBuffer sb = new StringBuffer(200);
 			sb.append(key.toString()+"\t");
 			sb.append("[");
-			for(int i=0;i<size;i++){
+			while(ite.hasNext()){
 				sb.append("{");			
-				sb.append("\""+list.get(index[i])+"\":"+"0");
-				sb.append("}");
-				if(i!=size-1){
-					sb.append(",");
-				}
+				sb.append("\""+ite.next()+"\":"+"0");
+				sb.append("}");				
+				sb.append(",");
 			}
 			
-			sb.append("]\r\n");
-			context.write(null,new Text(sb.toString()));
+			context.write(null,new Text(sb.substring(0, sb.toString().length()-1)+"]\r\n"));
 						
-		}
-		
-		protected Set<String> getTopGmByTagId(String tagId){
-			Set<String> result = new HashSet<String>();
-			String topNStr = tagTopN.get(tagId);
-			if(topNStr != null){
-				String[] kv = topNStr.split(",");
-				for(String item:kv){
-					result.add(item.split(":")[0]);
-				}
-				return result;
-			}else{
-				return null;
-			}
-			
-		}
+		}				
 		
 	}
 }

@@ -108,7 +108,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		
-		FileStatus[] oldFiles = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGTOPNIN),new TopNFilter());
+		FileStatus[] oldFiles = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.USERTOPTAG),new TopNFilter());
 		
 		for (int i = 0; i < oldFiles.length; i++) {
 			fs.delete(oldFiles[i].getPath(), true);
@@ -117,7 +117,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		FileStatus[] files = fs.listStatus(new Path(PropertiesUtils.getGmRecRootFolder() + Constants.TAGCFIN),new TopNFilter());
 		
 		for (int i = 0; i < files.length; i++) {
-			HdfsUtils.backupFile(fs,conf,files[i].getPath().toString(), PropertiesUtils.getGmRecRootFolder() + Constants.TAGTOPNIN+files[i].getPath().getName());
+			HdfsUtils.backupFile(fs,conf,files[i].getPath().toString(), PropertiesUtils.getGmRecRootFolder() + Constants.USERTOPTAG+files[i].getPath().getName());
 			fs.delete(files[i].getPath(), true);			
 		}
 	}

@@ -98,8 +98,8 @@ public class TagCF implements StrLineParseTool{
 		return sb.substring(0, sb.toString().length()-1)+"\r\n";
 	}*/
 	
-	public static Map<String, String> getTagTopNMap() throws IOException {
-		Map<String, String> tagTopN = new HashMap<String, String>();
+	public static Map<String, List<String>> getTagTopNMap() throws IOException {
+		Map<String, List<String>> tagTopN = new HashMap<String, List<String>>();
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		Path output = new Path(PropertiesUtils.getGmRecRootFolder()+ Constants.TAGRANKOUT);
@@ -112,8 +112,12 @@ public class TagCF implements StrLineParseTool{
 					BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(hdfs_src)));
 					String line = reader.readLine();
 					while (line != null) {
-						String[] kv = line.split("\\s");					
-						tagTopN.put(kv[0], kv[1]);
+						String[] kv = line.split("\\s");
+						List<String> list = new ArrayList<String>();
+						for(String item:kv){							
+							list.add(item.split(":")[0]);
+						}
+						tagTopN.put(kv[0], list);
 						line = reader.readLine();
 					}
 					reader.close();
