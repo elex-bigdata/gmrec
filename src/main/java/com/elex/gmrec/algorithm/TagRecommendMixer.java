@@ -53,11 +53,11 @@ public class TagRecommendMixer extends Configured implements Tool {
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		job.setInputFormatClass(TextInputFormat.class);
-		Path rating = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.MERGEFOLDER);
+		Path rating = new Path(PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER);
 		FileInputFormat.addInputPath(job, rating);	
 		Path tagcfout = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFOUTPUT);
 		FileInputFormat.addInputPath(job, tagcfout);
-		Path tagRankOut = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGRANKOUT);
+		Path tagRankOut = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGTOPNIN);
 		FileInputFormat.addInputPath(job, tagRankOut);
 		
 		job.setOutputFormatClass(TextOutputFormat.class);
@@ -82,7 +82,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 			}else if(pathName.contains(Constants.TAGCFOUTPUT)){
 				list = value.toString().split("\\s");
 				context.write(new Text(list[0]), new Text("02_"+parseTagCFRec(list[1])));
-			}else if(pathName.contains(Constants.TAGRANKOUT)){
+			}else if(pathName.contains(Constants.TAGTOPNIN)){
 				list = value.toString().split("\\s");
 				context.write(new Text(list[0]), new Text("02_"+parseUserTagTopN(list[1])));
 			}
@@ -181,11 +181,16 @@ public class TagRecommendMixer extends Configured implements Tool {
 		protected Set<String> getTopGmByTagId(String tagId){
 			Set<String> result = new HashSet<String>();
 			String topNStr = tagTopN.get(tagId);
-			String[] kv = topNStr.split(",");
-			for(String item:kv){
-				result.add(item.split(":")[0]);
+			if(topNStr != null){
+				String[] kv = topNStr.split(",");
+				for(String item:kv){
+					result.add(item.split(":")[0]);
+				}
+				return result;
+			}else{
+				return null;
 			}
-			return result;
+			
 		}
 		
 	}
