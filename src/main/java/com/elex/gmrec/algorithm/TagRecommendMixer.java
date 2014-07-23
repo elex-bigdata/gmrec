@@ -125,8 +125,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 		Map<String,String> tagTopN;
 		Set<String> hasPlaySet = new HashSet<String>();
 		Set<String> recSet = new HashSet<String>();
-		Set<String> result = new HashSet<String>();
-		int size = Integer.parseInt(PropertiesUtils.getCfNumOfRec());
+		Set<String> result = new HashSet<String>();		
 		int index[];
 		List<String> list = new ArrayList<String>();
 		
@@ -140,6 +139,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 		
 		@Override
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
+			int size = Integer.parseInt(PropertiesUtils.getCfNumOfRec());
 			hasPlaySet.clear();
 			recSet.clear();
 			for(Text line:values){

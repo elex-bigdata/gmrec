@@ -177,7 +177,6 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		private DecimalFormat df = new DecimalFormat("#.###");
 		private MultipleOutputs<Text, Text> mos;  
 		private MultipleOutputs<Text, Text> tagTopN;
-		private int size = PropertiesUtils.getUserTagTopN();
 		private Entry<String, TagAction> entry;
 		private String tagId;
 		private int times;
@@ -191,6 +190,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		@Override
 		protected void reduce(Text key, Iterable<Text> ite, Context context)throws IOException, InterruptedException {
 			userTagActionMap.clear();	
+			int size = PropertiesUtils.getUserTagTopN();
 			
 			for (Text value : ite) {
 				tv = value.toString().split(",");
