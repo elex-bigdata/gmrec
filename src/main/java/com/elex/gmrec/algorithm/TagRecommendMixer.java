@@ -16,7 +16,6 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
@@ -136,8 +135,8 @@ public class TagRecommendMixer extends Configured implements Tool {
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {
 		Map<String,List<String>> tagTopN;
 		Set<String> hasPlaySet = new HashSet<String>();
-		List<String> recSet = new ArrayList<String>();	
-		Set<String> result = new HashSet<String>();
+		Set<String> recSet = new HashSet<String>();	
+		List<String> result = new ArrayList<String>();
 		int index[];
 		
 		@Override
@@ -173,20 +172,20 @@ public class TagRecommendMixer extends Configured implements Tool {
 				index = RandomUtils.randomArray(0, recSet.size() - 1, size);
 
 				result.clear();
-				for (int i = 0; i < size; i++) {
-					result.add(recSet.get(index[i]));
+				Iterator<String> ite = recSet.iterator();
+				while(ite.hasNext()){
+					result.add(ite.next());
 				}
-
-				Iterator<String> ite = result.iterator();
+				
 				StringBuffer sb = new StringBuffer(200);
 				sb.append(key.toString() + "\t");
 				sb.append("[");
-				while (ite.hasNext()) {
+				for (int i = 0; i < index.length; i++) {
 					sb.append("{");
-					sb.append("\"" + ite.next() + "\":" + "0");
+					sb.append("\"" + result.get(index[i]) + "\":" + "0");
 					sb.append("}");
 					sb.append(",");
-				}
+				}								
 
 				context.write(null,new Text(sb.substring(0, sb.toString().length() - 1)+ "]"));
 			}
