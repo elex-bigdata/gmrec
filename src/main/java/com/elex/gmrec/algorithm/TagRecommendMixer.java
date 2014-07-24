@@ -167,28 +167,28 @@ public class TagRecommendMixer extends Configured implements Tool {
 			
 			recSet.removeAll(hasPlaySet);
 			
-			size = recSet.size()>size?size:recSet.size();
-			index = RandomUtils.randomArray(0,recSet.size()-1,size);
-			
-			result.clear();
-			for(int i=0;i<size;i++){
-				result.add(recSet.get(index[i]));
-			}
-			
-			Iterator<String> ite =  result.iterator();
-			
-			StringBuffer sb = new StringBuffer(200);
-			sb.append(key.toString()+"\t");
-			sb.append("[");
-			while(ite.hasNext()){
-				sb.append("{");			
-				sb.append("\""+ite.next()+"\":"+"0");
-				sb.append("}");				
-				sb.append(",");
-			}
-			
-			if(result.size()>0){
-				context.write(null,new Text(sb.substring(0, sb.toString().length()-1)+"]\r\n"));
+			if (recSet.size() > 0) {
+				
+				size = recSet.size() > size ? size : recSet.size();
+				index = RandomUtils.randomArray(0, recSet.size() - 1, size);
+
+				result.clear();
+				for (int i = 0; i < size; i++) {
+					result.add(recSet.get(index[i]));
+				}
+
+				Iterator<String> ite = result.iterator();
+				StringBuffer sb = new StringBuffer(200);
+				sb.append(key.toString() + "\t");
+				sb.append("[");
+				while (ite.hasNext()) {
+					sb.append("{");
+					sb.append("\"" + ite.next() + "\":" + "0");
+					sb.append("}");
+					sb.append(",");
+				}
+
+				context.write(null,new Text(sb.substring(0, sb.toString().length() - 1)+ "]"));
 			}
 			
 						
