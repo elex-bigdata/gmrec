@@ -2,7 +2,6 @@ package com.elex.gmrec.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +16,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
@@ -30,6 +30,7 @@ import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 import com.elex.gmrec.comm.RandomUtils;
+import com.elex.gmrec.etl.IDMapping;
 
 public class TagRecommendMixer extends Configured implements Tool {
 
@@ -72,7 +73,16 @@ public class TagRecommendMixer extends Configured implements Tool {
 	}
 
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
+		
 		String[] list;
+		Map<Integer,String> uidMap;
+		
+		@Override
+		protected void setup(Context context) throws IOException,
+				InterruptedException {
+			uidMap = IDMapping.getUidIntStrMap();
+		}
+
 		
 		@Override
 		protected void map(LongWritable key, Text value, Context context)
@@ -83,7 +93,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 				context.write(new Text(list[0]), new Text("01_"+list[1]));
 			}else if(pathName.contains(Constants.TAGCFOUTPUT)){
 				list = value.toString().split("\\s");
-				context.write(new Text(list[0]), new Text("02_"+parseTagCFRec(list[1])));
+				context.write(new Text(uidMap.get(list[0])), new Text("02_"+parseTagCFRec(list[1])));
 			}else if(pathName.contains(Constants.USERTOPTAG)){
 				list = value.toString().split("\\s");
 				context.write(new Text(list[0]), new Text("02_"+parseUserTagTopN(list[1])));

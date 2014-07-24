@@ -114,7 +114,8 @@ public class TagCF implements StrLineParseTool{
 					while (line != null) {
 						String[] kv = line.split("\\s");
 						List<String> list = new ArrayList<String>();
-						for(String item:kv){							
+						String[] items = kv[1].split(",");
+						for(String item:items){							
 							list.add(item.split(":")[0]);
 						}
 						tagTopN.put(kv[0], list);
