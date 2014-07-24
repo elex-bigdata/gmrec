@@ -93,7 +93,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 				context.write(new Text(list[0]), new Text("01_"+list[1]));
 			}else if(pathName.contains(Constants.TAGCFOUTPUT)){
 				list = value.toString().split("\\s");
-				context.write(new Text(uidMap.get(list[0])), new Text("02_"+parseTagCFRec(list[1])));
+				context.write(new Text(uidMap.get(Integer.parseInt(list[0].trim()))), new Text("02_"+parseTagCFRec(list[1])));
 			}else if(pathName.contains(Constants.USERTOPTAG)){
 				list = value.toString().split("\\s");
 				context.write(new Text(list[0]), new Text("02_"+parseUserTagTopN(list[1])));
@@ -187,7 +187,10 @@ public class TagRecommendMixer extends Configured implements Tool {
 				sb.append(",");
 			}
 			
-			context.write(null,new Text(sb.substring(0, sb.toString().length()-1)+"]\r\n"));
+			if(result.size()>0){
+				context.write(null,new Text(sb.substring(0, sb.toString().length()-1)+"]\r\n"));
+			}
+			
 						
 		}				
 		
