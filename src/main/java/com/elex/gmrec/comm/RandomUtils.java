@@ -63,6 +63,6 @@ public class RandomUtils {
 			}
 		}
 		
-		return null;
+		return result;
 	}
 }
