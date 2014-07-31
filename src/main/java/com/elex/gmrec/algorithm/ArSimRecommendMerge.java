@@ -117,13 +117,17 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 						tagId = tags.split(":");
 						for(String tag:tagId){
 							topN = tagTopN.get(tag);
-							for(String gid:topN){
-								rec.append(gid+",");
+							if(topN.size()>0){
+								for(String gid:topN){
+									rec.append(gid+",");
+								}
+								context.write(new Text(list[0]), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
 							}
+							
 						}
 					}
 				}
-				context.write(new Text(list[0]), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
+				
 			}
 			
 		}
