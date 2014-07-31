@@ -121,7 +121,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 								for(String gid:topN){
 									rec.append(gid+",");
 								}
-								context.write(new Text(list[0]), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
+								context.write(new Text(list[1]), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
 							}
 							
 						}
