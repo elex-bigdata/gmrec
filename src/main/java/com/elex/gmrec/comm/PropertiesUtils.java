@@ -70,6 +70,14 @@ public class PropertiesUtils {
 		return pop.getProperty("cf.numOfRec");
 	}
 	
+	public static String getUserRecNumber(){
+		return pop.getProperty("user.rec.number");
+	}
+	
+	public static String getItemRecNumber(){
+		return pop.getProperty("item.rec.number");
+	}
+	
 	public static String getTagCfNumOfRec(){
 		return pop.getProperty("tagcf.numOfRec");
 	}

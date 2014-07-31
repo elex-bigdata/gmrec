@@ -1,5 +1,7 @@
 package com.elex.gmrec.comm;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class RandomUtils {
@@ -47,5 +49,20 @@ public class RandomUtils {
             source[index] = source[len];
         }
         return result;
+	}
+	
+	public static List<String> randomTopN(int n,List<String> top){
+		List<String> result = new ArrayList<String>();
+		int index[];
+		if(n>top.size()){
+			return top;
+		}else{
+			index = RandomUtils.randomArray(0, top.size() - 1, n);
+			for (int i=0;i<index.length;i++) {
+				result.add(top.get(index[i]));
+			}
+		}
+		
+		return null;
 	}
 }

@@ -14,7 +14,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -33,7 +32,9 @@ import com.elex.gmrec.comm.PropertiesUtils;
 
 public class TagRanking extends Configured implements Tool {
 
-	/**
+	/**功能：tag按照用户数排序，并取每个tag的topN个gid输出。
+	 * 输入：prepareInputForTagCf的haigid输出，格式为（uid，tagId，gid）
+	 * 输出：tagid，gid，用户数
 	 * @param args
 	 * @throws Exception 
 	 */
@@ -104,7 +105,7 @@ public class TagRanking extends Configured implements Tool {
 	            
 	        });
 			
-			size = (int) Math.ceil(list.size()*topRate);
+			size = (int) Math.ceil(list.size()*topRate);//topN是按比例取的，因为每个tag的gid数量不等，用绝对数量取不合适
 			
 			Iterator<Entry<String, Integer>> ite = list.subList(0, size).iterator();
 			StringBuffer sb = new StringBuffer(200);

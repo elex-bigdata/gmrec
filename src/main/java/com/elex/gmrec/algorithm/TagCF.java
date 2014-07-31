@@ -37,6 +37,9 @@ public class TagCF implements StrLineParseTool{
 		RunItemCf();
 	}
 	
+	/*
+	 * 在运行协同过滤之前，需要对PrepareInputForTagCF的输入数据做处理，即将uid转为int型的索引，这里需要用到IDMapping输出的uid文件
+	 */
 	public static void prepare() throws Exception{
 			
 		String input = PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFIN;
@@ -68,6 +71,7 @@ public class TagCF implements StrLineParseTool{
 		String[] args = new String[argList.size()];
 		argList.toArray(args);
 		
+		//使用的是改造后的itemCf算法
 		return ToolRunner.run(new Configuration(), new org.apache.mahout.cf.taste.hadoop.item.RecommenderJob(), args);
 	}
 	

@@ -24,11 +24,11 @@
     </property>
     <property>
         <name>dfs.name.dir</name>
-        <value>file:///data/hadoop/cache/hadoop/dfs/name</value>
+        <value>file:///data0/hadoop/cache/hadoop/dfs/name</value>
     </property>
     <property>
         <name>dfs.data.dir</name>
-        <value>file:///data0/hadoop/cache/hadoop/dfs/data,file:///data1/hadoop/cache/hadoop/dfs/data,file:///data2/hadoop/cache/hadoop/dfs/data,file:///data3/hadoop/cache/hadoop/dfs/data</value>
+        <value>file:///data0/hadoop/cache/hadoop/dfs/data,file:///data1/hadoop/cache/hadoop/dfs/data,file:///data2/hadoop/cache/hadoop/dfs/data</value>
     </property>
     <property>
         <name>dfs.support.append</name>

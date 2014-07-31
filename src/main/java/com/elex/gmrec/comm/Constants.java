@@ -23,6 +23,7 @@ public class Constants {
 	public static final String TAGCFRECFINAL="/output/tagcf-final";
 	public static final String USERTOPTAG="/input/user-tag-topN/";
 	
-	public static final String TAGITEMRECMERGE="/recmerge";
+	public static final String TAGITEMRECMERGE="/recmerge/user";
+	public static final String ARSIMTAGRECMERGE="/recmerge/item";
 	
 }

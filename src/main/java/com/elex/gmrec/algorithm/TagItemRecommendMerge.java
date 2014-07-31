@@ -34,7 +34,10 @@ import com.elex.gmrec.comm.RandomUtils;
 
 public class TagItemRecommendMerge extends Configured implements Tool {
 
-	/**
+	/**功能：将TagRecommendMixer和ItemCF形成的推荐结果去重合并并随机选择size个gid输出
+	 * 输入1：Constants.CFRECPARSE，ItemCf解析后的推荐结果
+	 * 输入2：Constants.TAGITEMRECMERGE，TagCf和UserTopNTag合并后的色推荐结果
+	 * 输出：uid,json数组
 	 * @param args
 	 * @throws Exception 
 	 */
@@ -78,14 +81,10 @@ public class TagItemRecommendMerge extends Configured implements Tool {
 		@Override
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
-			String pathName = ((FileSplit)context.getInputSplit()).getPath().toString();
-			if(pathName.contains(Constants.CFRECPARSE)){
-				list = value.toString().split("\\s");
-				context.write(new Text(list[0]), new Text("01_"+list[1]));
-			}else if(pathName.contains(Constants.TAGCFRECFINAL)){
-				list = value.toString().split("\\s");
-				context.write(new Text(list[0]), new Text("02_"+list[1]));
-			}
+			list = value.toString().split("\\s");
+			if(list.length == 2){
+				context.write(new Text(list[0]), new Text(list[1]));
+			}			
 		}
 			
 	}
@@ -102,24 +101,18 @@ public class TagItemRecommendMerge extends Configured implements Tool {
 		
 		@Override
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
-			int size = Integer.parseInt(PropertiesUtils.getCfNumOfRec());
+			int size = Integer.parseInt(PropertiesUtils.getUserRecNumber());
 			unionRec.clear();
 			try {
 				for (Text line : values) {
-					if (line.toString().startsWith("01_")) {
-						JSONArray json;
-						json = new JSONArray(line.toString().substring(3,line.toString().length()));
-						for (int i = 0; i < json.length(); i++) {
-							JSONObject obj = (JSONObject) json.get(i);
-							unionRec.add(obj.keys().next().toString());
-						}
-					} else if (line.toString().startsWith("02_")) {
-						JSONArray json = new JSONArray(line.toString().substring(3, line.toString().length()));
+					if(!line.toString().equals("")){
+						JSONArray json= new JSONArray(line.toString());
 						for (int i = 0; i < json.length(); i++) {
 							JSONObject obj = (JSONObject) json.get(i);
 							unionRec.add(obj.keys().next().toString());
 						}
 					}
+					
 				}
 			} catch (JSONException e) {				
 				e.printStackTrace();
@@ -144,7 +137,7 @@ public class TagItemRecommendMerge extends Configured implements Tool {
 				sb.append("[");
 				for (int i=0;i<index.length;i++) {
 					sb.append("{");
-					sb.append("\"" + result.get(index[i]) + "\":" + "0");
+					sb.append("\"" + result.get(index[i]) + "\":" + "\"0\"");
 					sb.append("}");
 					sb.append(",");
 				}

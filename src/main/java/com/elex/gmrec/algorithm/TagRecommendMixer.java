@@ -34,6 +34,11 @@ import com.elex.gmrec.etl.IDMapping;
 public class TagRecommendMixer extends Configured implements Tool {
 
 	/**
+	 * 功能：先将TagCf的输出和Constants.USERTOPTAG的数据去重合并，然后取对应tag的topN个gid再去重合并还要过滤掉已经玩过的gid，最后随机去取user.rec.number个gid输出。
+	 * 输入1：Constants.MERGEFOLDER，格式为uid，gid，打分
+	 * 输入2：Constants.TAGCFOUTPUT，格式为uid，tagid，预测打分
+	 * 输入3：Constants.USERTOPTAG，格式为uid，tagid，次数
+	 * 输出：Constants.TAGCFRECFINAL，格式为uid，json数组对象，每个对象的key为gid，value为0（为了和gmrec-1.0的格式契合）
 	 * @param args
 	 * @throws Exception 
 	 */
@@ -74,7 +79,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
 		
 		String[] list;
-		Map<Integer,String> uidMap;
+		Map<Integer,String> uidMap;//用户索引号和用户id对应表，key为整形的用户索引号，value为用户id
 		
 		@Override
 		protected void setup(Context context) throws IOException,
@@ -82,7 +87,12 @@ public class TagRecommendMixer extends Configured implements Tool {
 			uidMap = IDMapping.getUidIntStrMap();
 		}
 
-		
+		/*
+		 * 由于三种输入的格式不一样，需要分别对待和处理，办法是：
+		 * 对输入1进行加“01_”的前缀标识，将输入2和输入3的value解析为同样形式并加“02_”标识。
+		 * (non-Javadoc)
+		 * @see org.apache.hadoop.mapreduce.Mapper#map(KEYIN, VALUEIN, org.apache.hadoop.mapreduce.Mapper.Context)
+		 */
 		@Override
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
@@ -92,6 +102,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 				context.write(new Text(list[0]), new Text("01_"+list[1]));
 			}else if(pathName.contains(Constants.TAGCFOUTPUT)){
 				list = value.toString().split("\\s");
+				//由于tagCf的输出中uid为整形索引号，在此需要还原
 				context.write(new Text(uidMap.get(Integer.parseInt(list[0].trim()))), new Text("02_"+parseTagCFRec(list[1])));
 			}else if(pathName.contains(Constants.USERTOPTAG)){
 				list = value.toString().split("\\s");
@@ -133,11 +144,11 @@ public class TagRecommendMixer extends Configured implements Tool {
 	
 	
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {
-		Map<String,List<String>> tagTopN;
-		Set<String> hasPlaySet = new HashSet<String>();
-		Set<String> recSet = new HashSet<String>();	
-		List<String> result = new ArrayList<String>();
-		int index[];
+		Map<String,List<String>> tagTopN;//每个tag对应的topN个游戏组成的List
+		Set<String> hasPlaySet = new HashSet<String>();//读入带有"01_"标识的数据(原始打分数据)，用户已玩过的游戏列表
+		Set<String> recSet = new HashSet<String>();	//所有可以给用户推荐的游戏列表
+		List<String> result = new ArrayList<String>();//将resSet转为List，用直接转换的方式会重复生成列表对象，占用内存
+		int index[];//随机选择result的size个下标构成的数组
 		
 		@Override
 		protected void setup(Context context) throws IOException,InterruptedException {
@@ -149,7 +160,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 		
 		@Override
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
-			int size = Integer.parseInt(PropertiesUtils.getCfNumOfRec());
+			int size = Integer.parseInt(PropertiesUtils.getUserRecNumber());
 			hasPlaySet.clear();
 			recSet.clear();
 			

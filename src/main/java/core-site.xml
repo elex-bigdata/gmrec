@@ -25,7 +25,15 @@
 
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/data/hadoop/cache/hadoop</value>
+        <value>/data0/hadoop/cache/hadoop</value>
+    </property>
+
+    <property>
+       <name>fs.trash.interval</name>
+       <value>2880</value>
+       <description>
+          Number of minutes between trash checkpoints. If zero, the trash feature is disabled
+       </description>
     </property>
 
     <property>

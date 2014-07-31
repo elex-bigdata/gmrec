@@ -33,7 +33,7 @@
     </property>
     <property>
         <name>hbase.zookeeper.quorum</name>
-        <value>datanode1,datanode2,datanode3</value>
+        <value>dmnode3,dmnode4,dmnode5</value>
     </property>
     <property>
         <name>hbase.regionserver.handler.count</name>

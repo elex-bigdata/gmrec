@@ -5,12 +5,18 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +34,9 @@ public class TagLoader {
 		load();
 	}
 	
+	/*
+	 * 加载gmtag.csv文件到hbase的gm_gidlist表
+	 */
 	public static int load() throws IOException{
 		Configuration configuration = HBaseConfiguration.create();
 		HTable gm = new HTable(configuration, "gm_gidlist");
@@ -56,5 +65,31 @@ public class TagLoader {
 		}
 		return 0;
 	}
+	
+	/*
+	 * 将gmtag.csv读入map，并返回该map，key为gid，value为tagId的组成的字符串
+	 */
+	public static Map<String,String> getGidTagMap() throws IOException{
+		HTable gm;
+		Configuration configuration;
+		Map<String,String> result = new HashMap<String,String>();
+		configuration = HBaseConfiguration.create();
+		gm = new HTable(configuration, "gm_gidlist");
+		gm.setAutoFlush(false);
+		Scan s = new Scan();
+		s.setCaching(500);
+		s.addColumn(Bytes.toBytes("gm"), Bytes.toBytes("tagids"));
+		ResultScanner rs = gm.getScanner(s);
+		for (Result r : rs) {
+			if (!r.isEmpty()) {
+				KeyValue kv = r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("tagids"));
+				result.put(Bytes.toString(Bytes.tail(r.getRow(),r.getRow().length - 1)),Bytes.toString(kv.getValue()));
+			}
+		}
+		gm.close();
+		
+		return result;
+	}
+	
 
 }

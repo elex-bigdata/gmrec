@@ -40,7 +40,7 @@
     </property>
     <property>
         <name>mapred.local.dir</name>
-        <value>/data/hadoop/cache/hadoop/mapred/local/</value>
+        <value>/data0/hadoop/cache/hadoop/mapred/local/</value>
     </property>
 
     <!-- Map side -->
@@ -71,11 +71,11 @@
     <!-- Reduce side -->
     <property>
         <name>mapred.reduce.tasks.maximum</name>
-        <value>2</value>
+        <value>4</value>
     </property>
     <property>
         <name>mapred.tasktracker.reduce.tasks.maximum</name>
-        <value>2</value>
+        <value>4</value>
     </property>
     <property>
         <name>mapred.reduce.parallel.copies</name>

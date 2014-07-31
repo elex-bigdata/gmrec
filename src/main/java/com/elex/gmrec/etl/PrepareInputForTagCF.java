@@ -17,13 +17,6 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -44,6 +37,12 @@ import com.elex.gmrec.comm.PropertiesUtils;
 public class PrepareInputForTagCF extends Configured implements Tool {
 
 	/**
+	 * 功能：将合并后的用户对游戏的打分记录转化为用户对tag的打分记录并输出，同时输出用户最喜欢的togn个tag和tagranking的输入数据。
+	 * 特点：一个输入，三个输出
+	 * 输入：Constants.MERGEFOLDER，合并后的用户对游戏的打分记录
+	 * 输出1：正常输出，用户对tag的打分记录，格式为uid，tagid，打分，打分=用户对该tag的打分总和/用户对该tag的次数、
+	 * 输出2：hasgid；生成tagranking的输入数据，格式为uid，tagid，gid
+	 * 输出3：tagtopN，每个用户最喜欢的topN个游戏，格式为uid，topN字符串（gid：times，）。
 	 * @param args
 	 * @throws Exception
 	 */
@@ -124,28 +123,15 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		
 
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
-		private HTable gm;
-		private Configuration configuration;
-		private Map<String,String> GMTagMap = new HashMap<String,String>();
+
+		private Map<String,String> GMTagMap;
 		private String[] vList;
 		private String[] tagList;
 		private String tags;
+		
 		@Override
 		protected void setup(Context context) throws IOException,InterruptedException {
-			configuration = HBaseConfiguration.create();
-			gm = new HTable(configuration, "gm_gidlist");
-			gm.setAutoFlush(false);
-			Scan s = new Scan();
-			s.setCaching(500);
-			s.addColumn(Bytes.toBytes("gm"), Bytes.toBytes("tagids"));
-			ResultScanner rs = gm.getScanner(s);
-			for (Result r : rs) {
-				if (!r.isEmpty()) {
-					KeyValue kv = r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("tagids"));
-					GMTagMap.put(Bytes.toString(Bytes.tail(r.getRow(),r.getRow().length - 1)),Bytes.toString(kv.getValue()));
-				}
-			}
-			gm.close();
+			GMTagMap = TagLoader.getGidTagMap();
 		}
 
 

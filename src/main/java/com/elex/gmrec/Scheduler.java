@@ -1,6 +1,5 @@
 package com.elex.gmrec;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hadoop.conf.Configuration;
@@ -9,9 +8,11 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.elex.gmrec.algorithm.ArSimRecommendMerge;
 import com.elex.gmrec.algorithm.AsocciationRule;
 import com.elex.gmrec.algorithm.ItemBaseCF;
 import com.elex.gmrec.algorithm.TagCF;
+import com.elex.gmrec.algorithm.TagItemRecommendMerge;
 import com.elex.gmrec.algorithm.TagRanking;
 import com.elex.gmrec.algorithm.TagRecommendMixer;
 import com.elex.gmrec.etl.IDMapping;
@@ -83,13 +84,23 @@ public class Scheduler {
 			log.info("TAG REC SUCCESS!!!");
 		}
 		
+		//stage4,合并推荐结果
+		if (shouldRunNextPhase(stageArgs, currentPhase)) {
+			log.info("开始合并基于用户的推荐结果!!!");
+			ToolRunner.run(new Configuration(), new TagItemRecommendMerge(), args);
+			log.info("合并基于用户的推荐结果结束!!!");
+			
+			log.info("开始合并基于游戏的推荐结果!!!");
+			ToolRunner.run(new Configuration(), new ArSimRecommendMerge(), args);
+			log.info("合并基于游戏的推荐结果结束!!!");
+		}
 		
 	}
 	
 	private static int TAGREC(String[] args) throws Exception {
-		log.info("开始加载游戏-tag对应表到hbase！！！");
+		/*log.info("开始加载游戏-tag对应表到hbase！！！");
 		TagLoader.load();
-		log.info("加载游戏-tag对应表到hbase成功！！！");
+		log.info("加载游戏-tag对应表到hbase成功！！！");*/
 		
 		log.info("开始准备tag推荐需要的输入数据！！！");
 		ToolRunner.run(new Configuration(), new PrepareInputForTagCF(), args);
