@@ -189,7 +189,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 				int i = 0;
 				while(ite.hasNext() && i<size){
 					sb.append("{");
-					sb.append("\"" + ite.next() + "\":" + "\"0\"");
+					sb.append("\"" + ite.next() + "\":" + "0");
 					sb.append("}");
 					sb.append(",");
 					i++;
