@@ -35,6 +35,7 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
 import com.elex.gmrec.comm.Constants;
+import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 
@@ -154,6 +155,7 @@ public class TagSimilarityParse extends Configured implements Tool {
 
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
 		conf.set("range", PropertiesUtils.getThreshold());
 		conf.set("topN", PropertiesUtils.getTopN());
 		conf.set("id_index_file", PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFTEMP + "/preparePreferenceMatrix/itemIDIndex");
@@ -165,8 +167,11 @@ public class TagSimilarityParse extends Configured implements Tool {
 		job.setMapOutputValueClass(Text.class);
 		job.setReducerClass(MyReducer.class);
 		FileInputFormat.addInputPath(job, new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFTEMP+ "/pairwiseSimilarity"));
+		String out = PropertiesUtils.getGmRecRootFolder()+Constants.TAGSIMOUT;
+		HdfsUtils.delFile(fs, out);
+		
 		job.setOutputFormatClass(TextOutputFormat.class);
-		FileOutputFormat.setOutputPath(job, new Path(PropertiesUtils.getGmRecRootFolder()+Constants.TAGSIMOUT));
+		FileOutputFormat.setOutputPath(job, new Path(out));
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
