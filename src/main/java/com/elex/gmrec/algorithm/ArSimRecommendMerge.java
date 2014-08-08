@@ -142,7 +142,10 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 				tagId = gmOfTags.split(":");
 				for(String tag:tagId){
 					tagSet.add(tag);
-					tagSet.addAll(simTagMap.get(tag));
+					if(simTagMap.get(tag) != null){
+						tagSet.addAll(simTagMap.get(tag));
+					}
+					
 				}
 			}
 			
