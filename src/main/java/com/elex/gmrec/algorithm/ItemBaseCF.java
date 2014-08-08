@@ -49,7 +49,7 @@ public class ItemBaseCF implements StrLineParseTool {
 		String[] args = new String[argList.size()];
 		argList.toArray(args);
 		
-		return ToolRunner.run(new Configuration(), new RecommenderJob(), args);
+		return ToolRunner.run(new Configuration(), new org.apache.mahout.cf.taste.hadoop.item.RecommenderJob(), args);
 	}
 	
 	public static int cfSimParse() throws Exception{
