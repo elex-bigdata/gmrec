@@ -15,6 +15,7 @@ import com.elex.gmrec.algorithm.TagCF;
 import com.elex.gmrec.algorithm.TagItemRecommendMerge;
 import com.elex.gmrec.algorithm.TagRanking;
 import com.elex.gmrec.algorithm.TagRecommendMixer;
+import com.elex.gmrec.algorithm.TagSimilarityParse;
 import com.elex.gmrec.etl.IDMapping;
 import com.elex.gmrec.etl.PrepareInputForCF;
 import com.elex.gmrec.etl.PrepareInputForFPG;
@@ -116,6 +117,7 @@ public class Scheduler {
 		log.info("协同过滤结束！！！");
 		
 		log.info("准备基于tag推荐结果！！！");
+		ToolRunner.run(new Configuration(), new TagSimilarityParse(),args);
 		ToolRunner.run(new Configuration(), new TagRecommendMixer(), args);
 		log.info("基于tag推荐结果成功输出！！！");
 		

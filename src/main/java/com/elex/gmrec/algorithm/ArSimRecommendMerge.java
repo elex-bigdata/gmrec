@@ -81,6 +81,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 		
 		Map<String,List<String>> tagTopN;
 		Map<String,String> gidTagMap;
+		Map<String, List<String>> simTagMap;
 		
 		
 		@Override
@@ -88,6 +89,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 				InterruptedException {
 			tagTopN = TagCF.getTagTopNMap();
 			gidTagMap = TagLoader.getGidTagMap();
+			simTagMap = TagSimilarityParse.getTagSimMap();
 		}
 
 		
@@ -114,7 +116,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 				if(list.length == 2){
 					tags = gidTagMap.get(list[1]);
 					if(tags != null){
-						tagId = tags.split(":");
+						tagId = getGameTags(tags);
 						for(String tag:tagId){
 							topN = tagTopN.get(tag);
 							if(topN.size()>0){
@@ -129,6 +131,22 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 				}
 				
 			}
+			
+		}
+		
+		protected String[] getGameTags(String gmOfTags){
+			
+			Set<String> tagSet = new HashSet<String>();
+			String[] tagId;
+			if(gmOfTags != null){
+				tagId = gmOfTags.split(":");
+				for(String tag:tagId){
+					tagSet.add(tag);
+					tagSet.addAll(simTagMap.get(tag));
+				}
+			}
+			
+			return tagSet.toArray(new String[tagSet.size()]);
 			
 		}
 			
