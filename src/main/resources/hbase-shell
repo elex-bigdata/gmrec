@@ -33,4 +33,9 @@ cat sim | awk '{split($2,a,",");print $1,length(a)}' >> aa
 #统计每个gid的推荐结果数量，并输出推荐结果多余20个的项目
 cat sim | awk '{if (split($2,a,",")>20) print $1,length(a)}' >> aa
 
+#sql-script(game对应tagids映射表):
 SELECT b.game_identify,GROUP_CONCAT(b.id SEPARATOR ':'),GROUP_CONCAT(b.tagname SEPARATOR ':') FROM(SELECT m.game_identify,t.id,t.tagname FROM www_tag t,www_tag_minigame_map m WHERE m.tag_id = t.id AND t.language = 'en' AND m.game_identify !='' ORDER BY m.game_identify)b GROUP BY b.game_identify
+
+#hive-script
+create table game_rank(language string,gid string,palys int)ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+insert overwrite table game_rank select substr(language,0,2),gid,count(1) from game_play_action group by substr(language,0,gid,2),gid;

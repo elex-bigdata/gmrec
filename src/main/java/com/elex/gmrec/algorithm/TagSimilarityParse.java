@@ -157,7 +157,7 @@ public class TagSimilarityParse extends Configured implements Tool {
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
 		conf.set("range", PropertiesUtils.getThreshold());
-		conf.set("topN", PropertiesUtils.getTopN());
+		conf.set("topN", PropertiesUtils.getTagCfNumOfRec());
 		conf.set("id_index_file", PropertiesUtils.getGmRecRootFolder()+Constants.TAGCFTEMP + "/preparePreferenceMatrix/itemIDIndex");
 		Job job = Job.getInstance(conf, "SimilarityParse");
 		job.setInputFormatClass(SequenceFileInputFormat.class);
