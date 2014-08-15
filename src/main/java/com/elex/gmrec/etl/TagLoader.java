@@ -116,7 +116,7 @@ public class TagLoader {
 			}
 		}
 		
-		return "20000";
+		return com.elex.gmrec.comm.Constants.DEFAULTTAG;
 	}
 	
 

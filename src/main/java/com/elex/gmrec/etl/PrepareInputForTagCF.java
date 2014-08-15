@@ -155,6 +155,8 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 							context.write(new Text(vList[0]), new Text(tag+","+vList[2]+","+vList[1]));
 						}
 					}
+				}else{
+					context.write(new Text(vList[0]), new Text(Constants.DEFAULTTAG+","+vList[2]+","+vList[1]));
 				}
 				
 							

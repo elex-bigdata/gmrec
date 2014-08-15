@@ -26,5 +26,6 @@ public class Constants {
 	
 	public static final String TAGITEMRECMERGE="/recmerge/user";
 	public static final String ARSIMTAGRECMERGE="/recmerge/item";
+	public static final String DEFAULTTAG = "20000";
 	
 }
