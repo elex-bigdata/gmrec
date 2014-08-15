@@ -32,7 +32,7 @@ public class TagLoader {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		load();
+		getGidTagMap();
 	}
 	
 	/*
@@ -76,6 +76,7 @@ public class TagLoader {
 		Configuration configuration;
 		Map<String,Map<String,String>> result = new HashMap<String,Map<String,String>>();
 		Map<String,String> gameTagMap;
+		String gid,language,tags;
 		configuration = HBaseConfiguration.create();
 		gm = new HTable(configuration, "gm_gidlist");
 		gm.setAutoFlush(false);
@@ -90,10 +91,14 @@ public class TagLoader {
 		for (Result r : rs) {
 			if (!r.isEmpty()) {
 				gameTagMap = new HashMap<String,String>();
+				gid = Bytes.toString(Bytes.tail(r.getRow(),r.getRow().length - 1));
 				for (KeyValue kv : r.raw()) {
-					gameTagMap.put(Bytes.toString(kv.getQualifier()),Bytes.toString(kv.getValue()));
+					language = Bytes.toString(kv.getQualifier());
+					tags = Bytes.toString(kv.getValue());
+					gameTagMap.put(language,tags);
+					System.out.println(gid+","+language+":"+tags);
 				}
-				result.put(Bytes.toString(Bytes.tail(r.getRow(),r.getRow().length - 1)),gameTagMap);
+				result.put(gid,gameTagMap);
 			}
 		}
 		gm.close();
