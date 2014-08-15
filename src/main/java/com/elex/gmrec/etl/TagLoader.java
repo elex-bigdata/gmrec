@@ -102,7 +102,7 @@ public class TagLoader {
 			}
 		}
 		gm.close();
-		System.out.println(result.get("war_of_guns").get("es"));
+		//System.out.println(result.get("war_of_guns").get("es"));
 		return result;
 	}
 	

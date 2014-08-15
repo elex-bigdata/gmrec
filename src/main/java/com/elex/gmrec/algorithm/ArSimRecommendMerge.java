@@ -220,7 +220,9 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			List<String> topN = new ArrayList<String>();
 			StringBuffer rec = new StringBuffer(200);
 			Set<String> set = new HashSet<String>();
-			tags = gidTagMap.get(gid).get(lang);
+			Map<String, String> gameTagMap;
+			gameTagMap = gidTagMap.get(gid);
+			tags = gameTagMap!=null?gameTagMap.get(lang):null;
 			
 			if(tags != null){
 				tagId = getGameTags(tags);
@@ -238,18 +240,19 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			ratio = ratio>1?1:ratio;
 			
 			size = new Double(size*ratio).intValue();
+			
 			if(size > 0){
 				if(topN.size()<size){
 					for(String game:topN){							
 						rec.append(game+",");
 					}
-					context.write(new Text(gid), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
+					context.write(new Text(gid), new Text("02_"+ rec.substring(0, rec.toString().length()-1)));
 				}else{
 					topN = RandomUtils.randomTopN(size, topN);
 					for(String game:topN){							
 						rec.append(game+",");
 					}
-					context.write(new Text(gid), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
+					context.write(new Text(gid), new Text("02_"+ rec.substring(0, rec.toString().length()-1)));
 				}
 			}
 			
