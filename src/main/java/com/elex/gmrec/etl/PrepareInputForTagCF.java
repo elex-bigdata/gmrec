@@ -148,7 +148,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 				gameTagMap = GMTagMap.get(vList[1]);
 				
 				if(gameTagMap != null){
-					tags = gameTagMap.get(vList[3])!=null?gameTagMap.get(vList[3]):getTag(gameTagMap);
+					tags = gameTagMap.get(vList[3])!=null?gameTagMap.get(vList[3]):TagLoader.getTag(gameTagMap);
 					if(tags!=null){
 						tagList = tags.split(":");
 						for(String tag:tagList){
@@ -161,18 +161,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 			}
 		}
 		
-		protected String getTag(Map<String,String> gameTagMap){
-			Language[] lang = Language.values();
-			String tags;
-			for(Language l : lang){
-				tags = gameTagMap.get(l.name());
-				if(tags != null){
-					return tags;
-				}
-			}
-			
-			return "20000";
-		}
+		
 	}
 
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {

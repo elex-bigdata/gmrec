@@ -106,5 +106,18 @@ public class TagLoader {
 		return result;
 	}
 	
+	public static String getTag(Map<String,String> gameTagMap){
+		Language[] lang = Language.values();
+		String tags;
+		for(Language l : lang){
+			tags = gameTagMap.get(l.name());
+			if(tags != null){
+				return tags;
+			}
+		}
+		
+		return "20000";
+	}
+	
 
 }

@@ -222,19 +222,19 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			Set<String> set = new HashSet<String>();
 			Map<String, String> gameTagMap;
 			gameTagMap = gidTagMap.get(gid);
-			tags = gameTagMap!=null?gameTagMap.get(lang):null;
 			
-			if(tags != null){
-				tagId = getGameTags(tags);
-				for(String tag:tagId){
-					if(tagTopN.get(tag)!=null){
-						set.addAll(tagTopN.get(tag));
-					}																				
+			if(gameTagMap != null){
+				tags = gameTagMap.get(lang)!=null?gameTagMap.get(lang):TagLoader.getTag(gameTagMap);
+				if(tags != null){
+					tagId = getGameTags(tags);
+					for(String tag:tagId){
+						if(tagTopN.get(tag)!=null){
+							set.addAll(tagTopN.get(tag));
+						}																				
+					}
 				}
 			}
-			
-			
-			
+															
 			topN.addAll(set);
 			int size = Integer.parseInt(PropertiesUtils.getItemRecNumber());
 			ratio = ratio>1?1:ratio;
