@@ -42,7 +42,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 	 * 输入：Constants.MERGEFOLDER，合并后的用户对游戏的打分记录
 	 * 输出1：正常输出，用户对tag的打分记录，格式为uid，tagid，打分，打分=用户对该tag的打分总和/用户对该tag的次数、
 	 * 输出2：hasgid；生成tagranking的输入数据，格式为uid，tagid，gid
-	 * 输出3：tagtopN，每个用户最喜欢的topN个游戏，格式为uid，topN字符串（gid：times，）。
+	 * 输出3：tagtopN，每个用户最喜欢的topN个tag，格式为uid，topN字符串（gid：times，）。
 	 * @param args
 	 * @throws Exception
 	 */
@@ -145,7 +145,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 			if (vList.length == 4) {
 				
 				gameTagMap = GMTagMap.get(vList[1]);
-				tags = gameTagMap!=null?gameTagMap.get(vList[3]):null;
+				tags = gameTagMap!=null?gameTagMap.get(vList[3]):gameTagMap.get("en");
 				if(tags!=null){
 					tagList = tags.split(":");
 					for(String tag:tagList){
