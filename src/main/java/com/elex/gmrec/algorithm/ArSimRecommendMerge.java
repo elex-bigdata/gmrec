@@ -241,7 +241,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			
 			size = new Double(size*ratio).intValue();
 			
-			if(size > 0){
+			if(size > 0 && topN.size() > 0){
 				if(topN.size()<size){
 					for(String game:topN){							
 						rec.append(game+",");
