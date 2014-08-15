@@ -32,6 +32,7 @@ import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
+import com.elex.gmrec.comm.Language;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 public class PrepareInputForTagCF extends Configured implements Tool {
@@ -145,15 +146,32 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 			if (vList.length == 4) {
 				
 				gameTagMap = GMTagMap.get(vList[1]);
-				tags = gameTagMap!=null?gameTagMap.get(vList[3]):gameTagMap.get("en");
-				if(tags!=null){
-					tagList = tags.split(":");
-					for(String tag:tagList){
-						context.write(new Text(vList[0]), new Text(tag+","+vList[2]+","+vList[1]));
+				
+				if(gameTagMap != null){
+					tags = getTag(gameTagMap);
+					if(tags!=null){
+						tagList = tags.split(":");
+						for(String tag:tagList){
+							context.write(new Text(vList[0]), new Text(tag+","+vList[2]+","+vList[1]));
+						}
 					}
 				}
+				
 							
 			}
+		}
+		
+		protected String getTag(Map<String,String> gameTagMap){
+			Language[] lang = Language.values();
+			String tags;
+			for(Language l : lang){
+				tags = gameTagMap.get(l.name());
+				if(tags != null){
+					return tags;
+				}
+			}
+			
+			return "20000";
 		}
 	}
 
