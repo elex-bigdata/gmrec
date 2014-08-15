@@ -301,6 +301,8 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			
 			if(topN.size()>size){
 				recSet.addAll(RandomUtils.randomTopN(size,topN));
+			}else{
+				recSet.addAll(topN);
 			}
 			
 			if (recSet.size() > 0) {
