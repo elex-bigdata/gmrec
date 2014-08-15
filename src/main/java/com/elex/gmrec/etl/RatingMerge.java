@@ -94,9 +94,14 @@ public class RatingMerge extends Configured implements Tool  {
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			vList = value.toString().split(",");
+			
 			if(vList.length==5){
 				if(!vList[2].equals("0")){
 					context.write(new Text(vList[0]+","+vList[1]+","+vList[4]), new Text(vList[2]));
+				}
+			}else if(vList.length==4){
+				if(!vList[2].equals("0")){
+					context.write(new Text(vList[0]+","+vList[1]+","+"en"), new Text(vList[2]));
 				}
 			}
 		}
@@ -111,7 +116,7 @@ public class RatingMerge extends Configured implements Tool  {
 		@Override
 		protected void reduce(Text key, Iterable<Text> rateList,Context context)
 				throws IOException, InterruptedException {
-			ugl = key.toString().split(";");
+			ugl = key.toString().split(",");
 			lang = ugl.length==3?ugl[2]:"pt";
 			lang = getLang(lang);
 			

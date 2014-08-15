@@ -96,13 +96,13 @@ public class TagLoader {
 					language = Bytes.toString(kv.getQualifier());
 					tags = Bytes.toString(kv.getValue());
 					gameTagMap.put(language,tags);
-					System.out.println(gid+","+language+":"+tags);
+					
 				}
 				result.put(gid,gameTagMap);
 			}
 		}
 		gm.close();
-		
+		System.out.println(result.get("war_of_guns").get("es"));
 		return result;
 	}
 	
