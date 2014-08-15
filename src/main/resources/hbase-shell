@@ -4,6 +4,18 @@ import org.apache.hadoop.hbase.filter.CompareFilter
 import org.apache.hadoop.hbase.filter.SubstringComparator
 scan 'gm_user_action', {FILTER => org.apache.hadoop.hbase.filter.RowFilter.new(CompareFilter::CompareOp.valueOf('EQUAL'),SubstringComparator.new("uK2C3FOk8KBxihwAChfIAg6161"))}
 
+scan 'gm_user_action', { COLUMNS => 'ua:cl'}
+
+import org.apache.hadoop.hbase.filter.QualifierFilter
+import org.apache.hadoop.hbase.filter.CompareFilter
+import org.apache.hadoop.hbase.filter.SubstringComparator
+import org.apache.hadoop.hbase.filter.BinaryComparator
+import org.apache.hadoop.hbase.util.Bytes
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter
+
+scan 'gm_gidlist', { FILTER => QualifierFilter.new(CompareFilter::CompareOp.valueOf('EQUAL'),SubstringComparator.new("w"))}
+scan 'gm_gidlist', {FILTER => SingleColumnValueFilter.new(Bytes.toBytes("gm"),Bytes.toBytes("gt"),CompareFilter::CompareOp.valueOf("EQUAL"),BinaryComparator.new(Bytes.toBytes("w")))}
+
 
 crontab -e
 50 17 * * * sh /home/hadoop/gmrec.sh /home/hadoop/rec /gmrec >> /home/hadoop/gmrec.log 2>&1 &
@@ -33,8 +45,14 @@ cat sim | awk '{split($2,a,",");print $1,length(a)}' >> aa
 #统计每个gid的推荐结果数量，并输出推荐结果多余20个的项目
 cat sim | awk '{if (split($2,a,",")>20) print $1,length(a)}' >> aa
 
+#awk分组求和，文件格式为Language,game,count
+awk -F "," '{w[$1]+=$3}END{for (a in w) print a,w[a]}' gamerank.csv
+
+
 #sql-script(game对应tagids映射表):
 SELECT b.game_identify,GROUP_CONCAT(b.id SEPARATOR ':'),GROUP_CONCAT(b.tagname SEPARATOR ':') FROM(SELECT m.game_identify,t.id,t.tagname FROM www_tag t,www_tag_minigame_map m WHERE m.tag_id = t.id AND t.language = 'en' AND m.game_identify !='' ORDER BY m.game_identify)b GROUP BY b.game_identify
+#sql-script取所有语种的tag-gid映射表
+SELECT b.game_identify,b.`language`,GROUP_CONCAT(b.id SEPARATOR ':'),GROUP_CONCAT(b.tagname SEPARATOR ':') FROM(SELECT m.game_identify,t.id,t.`language`,t.tagname FROM www_tag t,www_tag_minigame_map m WHERE m.tag_id = t.id  AND m.game_identify !='' ORDER BY m.game_identify)b GROUP BY b.game_identify,b.`language` INTO OUTFILE "D:\\tag.csv" FIELDS TERMINATED BY ',';
 
 #hive-script
 create table game_rank(language string,gid string,palys int)ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';

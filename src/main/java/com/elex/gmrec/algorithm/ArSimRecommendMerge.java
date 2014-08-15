@@ -1,17 +1,23 @@
 package com.elex.gmrec.algorithm;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -80,8 +86,9 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
 		
 		Map<String,List<String>> tagTopN;
-		Map<String,String> gidTagMap;
+		Map<String,Map<String,String>> gidTagMap;
 		Map<String, List<String>> simTagMap;
+		Map<String,Map<String,Double>> gidLangRation;
 		
 		
 		@Override
@@ -90,6 +97,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			tagTopN = TagCF.getTagTopNMap();
 			gidTagMap = TagLoader.getGidTagMap();
 			simTagMap = TagSimilarityParse.getTagSimMap();
+			gidLangRation = getGameLanguageRation();
 		}
 
 		
@@ -98,12 +106,9 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			
-			String[] list;
-			String tags;
-			String[] tagId;
-			List<String> topN;
-			StringBuffer rec = new StringBuffer(200);
-			
+			String[] list;			
+			Map<String, Double> gameMap;
+			String lang;
 			String pathName = ((FileSplit)context.getInputSplit()).getPath().toString();
 			if(pathName.contains(Constants.CFSIMOUTPUT)){
 				list = value.toString().split("\\s");
@@ -114,20 +119,13 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			}else if(pathName.contains(Constants.GIDMAPPINGFILE)){
 				list = value.toString().split(",");
 				if(list.length == 2){
-					tags = gidTagMap.get(list[1]);
-					if(tags != null){
-						tagId = getGameTags(tags);
-						for(String tag:tagId){
-							topN = tagTopN.get(tag);
-							if(topN.size()>0){
-								for(String gid:topN){
-									rec.append(gid+",");
-								}
-								context.write(new Text(list[1]), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
-							}
-							
-						}
+					gameMap =  gidLangRation.get(list[1]);
+					Iterator<String> ite = gameMap.keySet().iterator();
+					while(ite.hasNext()){
+						lang = ite.next();
+						writeToReduce(list[1],lang,gameMap.get(lang),context);
 					}
+					
 				}
 				
 			}
@@ -152,6 +150,110 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			return tagSet.toArray(new String[tagSet.size()]);
 			
 		}
+		
+		public Map<String,Map<String,Double>> getGameLanguageRation() throws IOException{
+			Map<String,Map<String,Double>> result = new HashMap<String,Map<String,Double>>();
+			Map<String,Double> gameMap;
+			Configuration conf = new Configuration();
+	        FileSystem fs = FileSystem.get(conf);
+	        FileStatus[] files = fs.listStatus(new Path(PropertiesUtils.getRatingFolder()+Constants.MERGEFOLDER));
+	        Path hdfs_src;
+	        BufferedReader reader = null;
+	        double all = 0D;
+	        double lang = 0D;
+	        for(FileStatus file:files){
+	        	
+	        	if(!file.isDirectory()){
+	        		hdfs_src = file.getPath();
+	        		if(file.getPath().getName().contains("part")){
+	        			try {
+	        	            reader = new BufferedReader(new InputStreamReader(fs.open(hdfs_src)));      	                    	            
+	        	            String line =reader.readLine();
+	        	            while(line != null){
+	        	            	String[] vList = line.split(",");
+	        	            	gameMap = result.get(vList[1])!=null?result.get(vList[1]):new HashMap<String,Double>();
+	        	            	all = gameMap.get("all")==null?1:gameMap.get("all")+1;
+	        	            	gameMap.put("all", all);
+	        	            	lang = gameMap.get(vList[3])==null?1:gameMap.get(vList[3])+1;
+	        	            	gameMap.put(vList[3], lang);
+	        	            	result.put(vList[1], gameMap);
+	        	            	line = reader.readLine();
+	        	            }
+	        	           reader.close();
+	        	        } finally {
+	        	            IOUtils.closeStream(reader);
+	        	        }
+	        			
+	        		}
+	        	}
+	        } 
+	        
+	        String gid;
+	        Entry<String, Map<String, Double>> entry;
+	        Iterator<Entry<String, Map<String, Double>>> ite = result.entrySet().iterator();
+	        String language;
+	        while(ite.hasNext()){
+	        	entry =  ite.next();
+	        	gid = entry.getKey();
+	        	gameMap = ite.next().getValue();
+	        	Iterator<String> gmIte = gameMap.keySet().iterator();
+	        	while(gmIte.hasNext()){
+	        		language = gmIte.next();
+	        		if(!"all".equals(language)){
+	        			gameMap.put(language, gameMap.get(language)/gameMap.get("all"));
+	        		}
+	        		
+	        	}
+	        	gameMap.remove("all");
+	        	result.put(gid, gameMap);
+	        }
+	        
+			
+			return result;
+			
+		}
+		
+		
+		protected void writeToReduce(String gid,String lang,Double ratio,Context context) throws IOException, InterruptedException{
+			String tags;
+			String[] tagId;
+			List<String> topN = new ArrayList<String>();
+			StringBuffer rec = new StringBuffer(200);
+			Set<String> set = new HashSet<String>();
+			tags = gidTagMap.get(gid).get(lang);
+			
+			if(tags != null){
+				tagId = getGameTags(tags);
+				for(String tag:tagId){
+					if(tagTopN.get(tag)!=null){
+						set.addAll(tagTopN.get(tag));
+					}																				
+				}
+			}
+			
+			
+			
+			topN.addAll(set);
+			int size = Integer.parseInt(PropertiesUtils.getItemRecNumber());
+			ratio = ratio>1?1:ratio;
+			
+			size = new Double(size*ratio).intValue();
+			if(size > 0){
+				if(topN.size()<size){
+					for(String game:topN){							
+						rec.append(game+",");
+					}
+					context.write(new Text(gid), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
+				}else{
+					topN = RandomUtils.randomTopN(size, topN);
+					for(String game:topN){							
+						rec.append(game+",");
+					}
+					context.write(new Text(gid), new Text("02_"+ rec.subSequence(0, rec.toString().length()-1)));
+				}
+			}
+			
+		}
 			
 	}
 	
@@ -164,7 +266,6 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 		@Override
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
 			int size = Integer.parseInt(PropertiesUtils.getItemRecNumber());
-			int needTopN;
 			String gid,recStr;
 			String[] gids;
 			unionRec.clear();
@@ -184,7 +285,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 						recStr = line.toString().substring(3,line.toString().length());
 						gids = recStr.split(",");
 						for(String rec:gids){
-							recSet.add(rec);
+							unionRec.add(rec);
 						}
 						
 					}
@@ -193,17 +294,14 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 				e.printStackTrace();
 			}
 			
-			topN.addAll(recSet);
+			topN.addAll(unionRec);
 			
-			if(unionRec.size()<size){
-				needTopN = size - unionRec.size();
-				if(needTopN > 0){
-					unionRec.addAll(RandomUtils.randomTopN(needTopN,topN));
-				}
+			if(topN.size()>size){
+				recSet.addAll(RandomUtils.randomTopN(size,topN));
 			}
 			
-			if (unionRec.size() > 0) {
-				Iterator<String> ite = unionRec.iterator();
+			if (recSet.size() > 0) {
+				Iterator<String> ite = recSet.iterator();
 				StringBuffer sb = new StringBuffer(200);
 				sb.append(key.toString() + "\t");
 				sb.append("[");

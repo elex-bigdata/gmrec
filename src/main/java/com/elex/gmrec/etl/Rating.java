@@ -77,8 +77,9 @@ public class Rating extends Configured implements Tool  {
 		hbScan.setStopRow(Bytes.add(Bytes.toBytes("hb"), Bytes.toBytes(now)));
 		hbScan.setCaching(500);
 		hbScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
-		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gid"));
 		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gt"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("l"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("cl"));
 		scans.add(hbScan);
 		
 		Scan upScan = new Scan();
@@ -86,8 +87,9 @@ public class Rating extends Configured implements Tool  {
 		upScan.setStopRow(Bytes.add(Bytes.toBytes("up"), Bytes.toBytes(now)));
 		upScan.setCaching(500);
 		upScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
-		upScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gid"));
 		upScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gt"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("l"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("cl"));
 		scans.add(upScan);
 		
 		Scan doScan = new Scan();
@@ -95,8 +97,9 @@ public class Rating extends Configured implements Tool  {
 		doScan.setStopRow(Bytes.add(Bytes.toBytes("do"), Bytes.toBytes(now)));
 		doScan.setCaching(500);
 		doScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
-		doScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gid"));
 		doScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("gt"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("l"));
+		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("cl"));
 		scans.add(doScan);
 		
 		
@@ -128,6 +131,7 @@ public class Rating extends Configured implements Tool  {
 		private String[] ugid;
 		private String gmType = null;
 		private String actionType = "";
+		private String lang = "";
 		private Text uidKey = new Text();
 		private Text mixValue =new Text();
 		private Set<String> allGM = new HashSet<String>();
@@ -171,6 +175,12 @@ public class Rating extends Configured implements Tool  {
 					if ("ua".equals(Bytes.toString(kv.getFamily()))&& "gt".equals(Bytes.toString(kv.getQualifier()))) {
 						gmType = Bytes.toString(kv.getValue());
 					}
+					if ("ua".equals(Bytes.toString(kv.getFamily()))&& "l".equals(Bytes.toString(kv.getQualifier()))) {
+						lang = Bytes.toString(kv.getValue());
+					}
+					if ("ua".equals(Bytes.toString(kv.getFamily()))&& "cl".equals(Bytes.toString(kv.getQualifier()))) {
+						lang = Bytes.toString(kv.getValue());
+					}
 				}
 			}
 			
@@ -182,7 +192,7 @@ public class Rating extends Configured implements Tool  {
 				gm.put(put);
 			}
 			
-			uidKey.set(Bytes.toBytes(sdf.format(dayTime)+","+uid));
+			uidKey.set(Bytes.toBytes(sdf.format(dayTime)+","+uid+","+lang));
 			mixValue.set(Bytes.toBytes(gid+","+actionType));
 			context.write(uidKey, mixValue);
 		}
@@ -202,10 +212,12 @@ public class Rating extends Configured implements Tool  {
 		Map<String,Boolean> gmUpDownMap = new HashMap<String,Boolean>();
 		Set<String> myGids = new HashSet<String>();
 		Iterator<String> ite;
-		String[] actions;		
+		String[] actions;
+		String[] dayUidLang;
 		String gid;
 		String uid;
 		String day;
+		String lang = "";
 		DecimalFormat df = new DecimalFormat("#.###");
 		@Override
 		protected void reduce(Text dayUid, Iterable<Text> vList,Context context) throws IOException, InterruptedException {
@@ -213,8 +225,17 @@ public class Rating extends Configured implements Tool  {
 			gmUpDownMap.clear();
 			myGids.clear();
 			double rate = 0;
-			day=dayUid.toString().split(",")[0];
-			uid=dayUid.toString().split(",")[1];
+			dayUidLang = dayUid.toString().split(",");
+			
+			if(dayUidLang.length==3){
+				day=dayUidLang[0];
+				uid=dayUidLang[1];
+				lang = dayUidLang[2].length()>2?dayUidLang[2].substring(0, 2):dayUidLang[2];
+				if(lang.contains(",")){
+					lang.replace("", "");
+				}
+		
+			}
 			
 			
 			for(Text v:vList){
@@ -248,7 +269,7 @@ public class Rating extends Configured implements Tool  {
 				}
 				
 				rate=rate>10?10:rate;
-				context.write(null,new Text(uid.toString()+","+gid+","+df.format(rate)+","+day));
+				context.write(null,new Text(uid.toString()+","+gid+","+df.format(rate)+","+day+","+lang));
 			}
 			
 			

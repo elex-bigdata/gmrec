@@ -11,6 +11,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -24,6 +25,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.Constants;
+import com.elex.gmrec.comm.Language;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 public class RatingMerge extends Configured implements Tool  {
@@ -92,9 +94,9 @@ public class RatingMerge extends Configured implements Tool  {
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			vList = value.toString().split(",");
-			if(vList.length==4){
+			if(vList.length==5){
 				if(!vList[2].equals("0")){
-					context.write(new Text(vList[0]+","+vList[1]), new Text(vList[2]));
+					context.write(new Text(vList[0]+","+vList[1]+","+vList[4]), new Text(vList[2]));
 				}
 			}
 		}
@@ -103,15 +105,32 @@ public class RatingMerge extends Configured implements Tool  {
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {
 		
 		DecimalFormat df = new DecimalFormat("#.###");
+		String lang;
+		String[] ugl;
 		
 		@Override
 		protected void reduce(Text key, Iterable<Text> rateList,Context context)
 				throws IOException, InterruptedException {
+			ugl = key.toString().split(";");
+			lang = ugl.length==3?ugl[2]:"pt";
+			lang = getLang(lang);
+			
 			double rate = 0;
 			for(Text r:rateList){
 				rate = Double.valueOf(r.toString())>rate?Double.valueOf(r.toString()):rate;
 			}
-			context.write(null, new Text(key.toString()+","+df.format(rate)));
-		}		
+			context.write(null, new Text(key.toString().substring(0, key.toString().lastIndexOf(","))+","+df.format(rate)+","+lang));
+		}
+		
+		protected String getLang(String lang){
+			Language[] ls = Language.values();
+			for(Language l : ls){
+				if(lang.equals(l.name())){
+					return lang;
+				}
+			}
+			
+			return "pt";
+		}
 	}
 }

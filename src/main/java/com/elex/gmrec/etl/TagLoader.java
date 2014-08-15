@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.elex.gmrec.comm.Language;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 public class TagLoader {
@@ -35,7 +36,8 @@ public class TagLoader {
 	}
 	
 	/*
-	 * 加载gmtag.csv文件到hbase的gm_gidlist表
+	 * 加载gmtag.csv文件到hbase的gm_gidlist表,gmtag.csv的格式为gid，language，tagids，tagnames，例如
+	 * 123go_motorcycle_racing,en,34:118:148,Car Games:Motorcycle Games:Racing Games
 	 */
 	public static int load() throws IOException{
 		Configuration configuration = HBaseConfiguration.create();
@@ -49,10 +51,9 @@ public class TagLoader {
 			String line = in.readLine().trim();
 			while (line != null) {
 				String[] tag = line.split(",");
-				if(tag.length==3){
+				if(tag.length==4){
 					Put put = new Put(Bytes.add(Bytes.toBytes("m"), Bytes.toBytes(tag[0])));
-					put.add(Bytes.toBytes("gm"), Bytes.toBytes("tagids"), Bytes.toBytes(tag[1]));
-					put.add(Bytes.toBytes("gm"), Bytes.toBytes("tagnames"), Bytes.toBytes(tag[2]));
+					put.add(Bytes.toBytes("gm"), Bytes.toBytes(tag[1]), Bytes.toBytes(tag[2]));
 					tagPutList.add(put);
 				}				
 				line = in.readLine();
@@ -67,23 +68,32 @@ public class TagLoader {
 	}
 	
 	/*
-	 * 将gmtag.csv读入map，并返回该map，key为gid，value为tagId的组成的字符串
+	 *读取hbase的gm_gidlist表，获取gid对应语言的对应tag，返回值是map，key为gid，
+	 *value为语种和tagid映射表，该映射表也是一个map，映射表map的key为语种标识，value为tagid列表
 	 */
-	public static Map<String,String> getGidTagMap() throws IOException{
+	public static Map<String,Map<String,String>> getGidTagMap() throws IOException{
 		HTable gm;
 		Configuration configuration;
-		Map<String,String> result = new HashMap<String,String>();
+		Map<String,Map<String,String>> result = new HashMap<String,Map<String,String>>();
+		Map<String,String> gameTagMap;
 		configuration = HBaseConfiguration.create();
 		gm = new HTable(configuration, "gm_gidlist");
 		gm.setAutoFlush(false);
 		Scan s = new Scan();
 		s.setCaching(500);
-		s.addColumn(Bytes.toBytes("gm"), Bytes.toBytes("tagids"));
+		Language[] ls = Language.values();
+		for(Language l : ls){
+			s.addColumn(Bytes.toBytes("gm"), Bytes.toBytes(l.name()));
+		}		
 		ResultScanner rs = gm.getScanner(s);
+		
 		for (Result r : rs) {
 			if (!r.isEmpty()) {
-				KeyValue kv = r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("tagids"));
-				result.put(Bytes.toString(Bytes.tail(r.getRow(),r.getRow().length - 1)),Bytes.toString(kv.getValue()));
+				gameTagMap = new HashMap<String,String>();
+				for (KeyValue kv : r.raw()) {
+					gameTagMap.put(Bytes.toString(kv.getQualifier()),Bytes.toString(kv.getValue()));
+				}
+				result.put(Bytes.toString(Bytes.tail(r.getRow(),r.getRow().length - 1)),gameTagMap);
 			}
 		}
 		gm.close();

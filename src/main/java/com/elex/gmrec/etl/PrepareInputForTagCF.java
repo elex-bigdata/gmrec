@@ -124,7 +124,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
 
-		private Map<String,String> GMTagMap;
+		private Map<String,Map<String,String>> GMTagMap;
 		private String[] vList;
 		private String[] tagList;
 		private String tags;
@@ -141,9 +141,9 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			vList = value.toString().split(",");
 			
-			if (vList.length == 3) {
+			if (vList.length == 4) {
 				
-				tags = GMTagMap.get(vList[1]);
+				tags = GMTagMap.get(vList[1]).get(vList[3]);
 				if(tags!=null){
 					tagList = tags.split(":");
 					for(String tag:tagList){

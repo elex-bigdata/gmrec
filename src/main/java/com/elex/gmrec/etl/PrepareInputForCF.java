@@ -38,7 +38,7 @@ public class PrepareInputForCF  implements StrLineParseTool{
 		
 		String[] vList = line.split(",");
 		
-    	if(vList.length==3){
+    	if(vList.length==4){
         	return new String(Integer.toString(uidMap.get(vList[0]))+","+Integer.toString(gidMap.get(vList[1]))+","+vList[2]+"\r\n");
     	}
 		return null;
