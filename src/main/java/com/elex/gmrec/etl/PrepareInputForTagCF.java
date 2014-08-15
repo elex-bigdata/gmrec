@@ -148,7 +148,7 @@ public class PrepareInputForTagCF extends Configured implements Tool {
 				gameTagMap = GMTagMap.get(vList[1]);
 				
 				if(gameTagMap != null){
-					tags = getTag(gameTagMap);
+					tags = gameTagMap.get(vList[3])!=null?gameTagMap.get(vList[3]):getTag(gameTagMap);
 					if(tags!=null){
 						tagList = tags.split(":");
 						for(String tag:tagList){
