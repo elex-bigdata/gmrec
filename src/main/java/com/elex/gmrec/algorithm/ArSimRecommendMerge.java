@@ -195,7 +195,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 	        while(ite.hasNext()){
 	        	entry =  ite.next();
 	        	gid = entry.getKey();
-	        	gameMap = ite.next().getValue();
+	        	gameMap = entry.getValue();
 	        	Iterator<String> gmIte = gameMap.keySet().iterator();
 	        	while(gmIte.hasNext()){
 	        		language = gmIte.next();
@@ -224,14 +224,17 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			gameTagMap = gidTagMap.get(gid);
 			
 			if(gameTagMap != null){
-				tags = gameTagMap.get(lang)!=null?gameTagMap.get(lang):TagLoader.getTag(gameTagMap);
-				if(tags != null){
-					tagId = getGameTags(tags);
-					for(String tag:tagId){
-						if(tagTopN.get(tag)!=null){
-							set.addAll(tagTopN.get(tag));
-						}																				
-					}
+				tags = gameTagMap.get(lang)!=null?gameTagMap.get(lang):TagLoader.getTag(gameTagMap);				
+			}else{
+				tags = Constants.DEFAULTTAG;
+			}
+			
+			if(tags != null){
+				tagId = getGameTags(tags);
+				for(String tag:tagId){
+					if(tagTopN.get(tag)!=null){
+						set.addAll(tagTopN.get(tag));
+					}																				
 				}
 			}
 															
