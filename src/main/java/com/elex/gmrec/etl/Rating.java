@@ -192,9 +192,12 @@ public class Rating extends Configured implements Tool  {
 				gm.put(put);
 			}
 			
-			uidKey.set(Bytes.toBytes(sdf.format(dayTime)+","+uid+","+lang));
-			mixValue.set(Bytes.toBytes(gid+","+actionType));
-			context.write(uidKey, mixValue);
+			if(gmType.equals("m")){
+				uidKey.set(Bytes.toBytes(sdf.format(dayTime)+","+uid+","+lang));
+				mixValue.set(Bytes.toBytes(gid+","+actionType));
+				context.write(uidKey, mixValue);
+			}
+			
 		}
 		
 		@Override
