@@ -60,11 +60,18 @@ SELECT b.game_identify,b.`language`,GROUP_CONCAT(b.id SEPARATOR ':'),GROUP_CONCA
 create table game_rank(language string,gid string,palys int)ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
 insert overwrite table game_rank select substr(language,0,2),gid,count(1) from game_play_action group by substr(language,0,gid,2),gid;
 
+#将hbase的gm_gidlist映射到hive
 hive -hiveconf hbase.zookeeper.quorum=dmnode3,dmnode4,dmnode5
 CREATE EXTERNAL TABLE gm_gidtagmap(id string,gt string,ar string,de string,en string,es string,fr string,ja string,nl string,pl string,pt string,th string,tr string,tw string,zh string) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = ":key,gm:gt,gm:ar,gm:de,gm:en,gm:es,gm:fr,gm:ja,gm:nl,gm:pl,gm:pt,gm:th,gm:tr,gm:tw,gm:zh")  TBLPROPERTIES ("hbase.table.name" = "gm_gidlist");
 CREATE EXTERNAL TABLE game_tag_map(id string,gt string,ar string,de string,en string,es string,fr string,ja string,nl string,pl string,pt string,th string,tr string,tw string,zh string) row format delimited fields terminated by ',' stored as textfile;
 INSERT OVERWRITE TABLE game_tag_map SELECT * from gm_gidtagmap;
 
+#统计每个gid对应语言对应tag的play次数
 create table game_tag_play_count(gid string,lang string,tag string,time timestamp)row format delimited fields terminated by ',' stored as textfile;
 INSERT INTO TABLE game_tag_play_count select /*+ mapjoin(game_tag_map)*/ a.gid,a.language,t.en,a.time from game_tag_map t join game_play_action a on (a.language='en' and a.day>='20140815' and a.gid=substr(t.id,2));
 INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/tag_play' row format delimited fields terminated by ',' stored as textfile select gid,lang,tag,count(time) from game_tag_play_count group by gid,lang,tag;
+
+#统计大游戏的行为数量
+create table ratingmerge(uid string,gid string,rate string,lang string)row format delimited fields terminated by ',' stored as textfile;
+LOAD DATA INPATH '/gmrec/rating/merge/part-r-00000' INTO TABLE ratingmerge;
+select count(gid) from(select /*+ mapjoin(game_tag_map)*/ r.gid,t.gt from ratingmerge r join game_tag_map t on r.gid=substr(t.id,2))b where gt='w'
