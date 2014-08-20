@@ -32,7 +32,7 @@ public class TagLoader {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		getGidTagMap();
+		load();
 	}
 	
 	/*
