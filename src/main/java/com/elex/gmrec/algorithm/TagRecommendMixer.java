@@ -170,7 +170,13 @@ public class TagRecommendMixer extends Configured implements Tool {
 				}else if(line.toString().startsWith("02_")){
 					String[] list = line.toString().substring(3, line.toString().length()).split(",");
 					for(String tagId:list ){
-						recSet.addAll(tagTopN.get(tagId));					
+						if(tagTopN.get(tagId)!=null){
+							if(tagTopN.get(tagId).size()>size){
+								recSet.addAll(RandomUtils.randomTopN(size, tagTopN.get(tagId)));								
+							}else{
+								recSet.addAll(tagTopN.get(tagId));
+							}							
+						}											
 					}					
 				}				
 			}

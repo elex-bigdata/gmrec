@@ -222,6 +222,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			Set<String> set = new HashSet<String>();
 			Map<String, String> gameTagMap;
 			gameTagMap = gidTagMap.get(gid);
+			int size = Integer.parseInt(PropertiesUtils.getItemRecNumber());
 			
 			if(gameTagMap != null){
 				tags = gameTagMap.get(lang)!=null?gameTagMap.get(lang):TagLoader.getTag(gameTagMap);				
@@ -233,13 +234,18 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 				tagId = getGameTags(tags);
 				for(String tag:tagId){
 					if(tagTopN.get(tag)!=null){
-						set.addAll(tagTopN.get(tag));
+						if(tagTopN.get(tag).size()>size){
+							set.addAll(RandomUtils.randomTopN(size, tagTopN.get(tag)));
+						}else{
+							set.addAll(tagTopN.get(tag));
+						}
+						
 					}																				
 				}
 			}
 															
 			topN.addAll(set);
-			int size = Integer.parseInt(PropertiesUtils.getItemRecNumber());
+			
 			ratio = ratio>1?1:ratio;
 			
 			size = new Double(size*ratio).intValue();

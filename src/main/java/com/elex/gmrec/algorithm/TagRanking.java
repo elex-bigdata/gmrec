@@ -105,7 +105,8 @@ public class TagRanking extends Configured implements Tool {
 	            
 	        });
 			
-			int size = Integer.parseInt(PropertiesUtils.getItemRecNumber());
+			size = (int) Math.ceil(list.size()*topRate);//topN是按比例取的，因为每个tag的gid数量不等，用绝对数量取不合适
+			size = size<10?10:size;
 			
 			Iterator<Entry<String, Integer>> ite = list.subList(0, size).iterator();
 			StringBuffer sb = new StringBuffer(200);
