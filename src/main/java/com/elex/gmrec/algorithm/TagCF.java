@@ -103,7 +103,6 @@ public class TagCF implements StrLineParseTool{
 	}*/
 	
 	public static Map<String, List<String>> getTagTopNMap() throws IOException {
-		int size = Integer.parseInt(PropertiesUtils.getItemRecNumber());
 		Map<String, List<String>> tagTopN = new HashMap<String, List<String>>();
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
@@ -123,13 +122,7 @@ public class TagCF implements StrLineParseTool{
 						for(String item:items){							
 							list.add(item.split(":")[0]);
 						}
-						
-						if(list.size()>size){
-							tagTopN.put(kv[0], list.subList(0, size));
-						}else if(list.size()<size && list.size()>0){
-							tagTopN.put(kv[0], list);
-						}
-						
+						tagTopN.put(kv[0], list);
 						line = reader.readLine();
 					}
 					reader.close();
