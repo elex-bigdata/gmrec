@@ -88,6 +88,9 @@ public class TagRanking extends Configured implements Tool {
 		
 		@Override
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
+			
+			int numOfItem = Integer.parseInt(PropertiesUtils.getItemRecNumber());
+			
 			Map<String,Integer> gcMap = new HashMap<String,Integer>();
 			for(Text gm:values){
 				count = gcMap.get(gm.toString())!=null?gcMap.get(gm.toString())+1:1;
@@ -105,8 +108,14 @@ public class TagRanking extends Configured implements Tool {
 	            
 	        });
 			
-			size = (int) Math.ceil(list.size()*topRate);//topN是按比例取的，因为每个tag的gid数量不等，用绝对数量取不合适
-			size = list.size()<size?list.size():size;			
+			size = (int) Math.ceil(list.size()*topRate)-1;//topN是按比例取的，因为每个tag的gid数量不等，用绝对数量取不合适
+									
+			if(size<numOfItem){
+				double ratio = new Double(numOfItem)/new Double(list.size());
+				ratio=ratio>1?1:ratio;
+				size = (int) Math.floor(list.size()*ratio)-1;
+			}
+			
 			Iterator<Entry<String, Integer>> ite = list.subList(0, size).iterator();
 			StringBuffer sb = new StringBuffer(200);
 			
