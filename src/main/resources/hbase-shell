@@ -75,3 +75,10 @@ INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/tag_play' row format delimited fi
 create table ratingmerge(uid string,gid string,rate string,lang string)row format delimited fields terminated by ',' stored as textfile;
 LOAD DATA INPATH '/gmrec/rating/merge/part-r-00000' INTO TABLE ratingmerge;
 select count(gid) from(select /*+ mapjoin(game_tag_map)*/ r.gid,t.gt from ratingmerge r join game_tag_map t on r.gid=substr(t.id,2))b where gt='w'
+
+#统计推荐带来的play次数
+select count(1) from game_play_action where day > '20140822' and rt is not null;
+
+#分别统计最近一个月每个用户玩大小游戏的次数
+INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/wuzhongju' row format delimited fields terminated by ',' stored as textfile select /*+ mapjoin(g)*/ t.uid,g.gt,count(t.time) from game_play_action t left outer join game_tag_map g on (t.gid=substr(g.id,2)) where t.day >'20140724' group by t.uid,g.gt;
+awk -F "," 'BEGIN{total=0}{total+=$3}END{print total}' 000000_0 
