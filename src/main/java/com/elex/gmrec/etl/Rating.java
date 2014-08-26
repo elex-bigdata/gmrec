@@ -235,7 +235,7 @@ public class Rating extends Configured implements Tool  {
 				uid=dayUidLang[1];
 				lang = dayUidLang[2].length()>2?dayUidLang[2].substring(0, 2):dayUidLang[2];
 				if(lang.contains(",")){
-					lang.replace("", "");
+					lang.replace(",", "");
 				}
 		
 			}
