@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.Constants;
@@ -13,6 +14,7 @@ import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.ParseUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
 import com.elex.gmrec.comm.StrLineParseTool;
+import com.elex.gmrec.etl.FilterUtils;
 import com.elex.gmrec.etl.IDMapping;
 
 public class ItemBaseCF implements StrLineParseTool {
@@ -30,6 +32,7 @@ public class ItemBaseCF implements StrLineParseTool {
 	public static int RunItemCf() throws Exception{
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
+		FilterUtils.writeSetToFileNoIndex(fs, FilterUtils.getMiniGM(), new Path(PropertiesUtils.getGmRecRootFolder()+Constants.FILTERFILE));
 		String cfOut = PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT;
 		String cfTemp = PropertiesUtils.getGmRecRootFolder()+Constants.CFTEMP;
 		HdfsUtils.delFile(fs, cfOut);
@@ -45,6 +48,8 @@ public class ItemBaseCF implements StrLineParseTool {
 		argList.add(PropertiesUtils.getCfSimilarityClassname());
 		argList.add("--tempDir");
 		argList.add(cfTemp);
+		argList.add("--itemsFile");
+		argList.add(PropertiesUtils.getGmRecRootFolder()+Constants.FILTERFILE);
 		
 		String[] args = new String[argList.size()];
 		argList.toArray(args);

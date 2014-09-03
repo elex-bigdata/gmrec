@@ -11,18 +11,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -95,39 +87,9 @@ public class RatingMerge extends Configured implements Tool  {
 
 	//TextOutputFormat的输出文件key为long的字节偏移量
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
-
-		
-		private HTable gm;
-		private Configuration configuration;
-		private Set<String> miniGM = new HashSet<String>();
+				
 		String[] vList;
-		
-		@Override
-		protected void setup(Context context) throws IOException,
-				InterruptedException {
-			configuration = HBaseConfiguration.create();
-			gm = new HTable(configuration, "gm_gidlist");
-			gm.setAutoFlush(false);
-			Scan s = new Scan();
-			s.setCaching(500);
-			s.addColumn(Bytes.toBytes("gm"), Bytes.toBytes("gt"));
-			ResultScanner rs = gm.getScanner(s);
-			for (Result r : rs) {
-				if(!r.isEmpty()){
-					if(r.containsColumn(Bytes.toBytes("gm"), Bytes.toBytes("gt"))){
-						if(r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("gt")).getValue() != null){
-							if(Bytes.toString(r.getColumnLatest(Bytes.toBytes("gm"), Bytes.toBytes("gt")).getValue()).equals("m")){
-								miniGM.add(Bytes.toString(Bytes.tail(r.getRow(), r.getRow().length-1)));
-							}
-						}
-						
-					}
-																															
-				}
-			}
-		}
-		
-		
+							
 		@Override
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
@@ -135,16 +97,12 @@ public class RatingMerge extends Configured implements Tool  {
 			
 			if(vList.length==5){
 				if(!vList[2].equals("0")){
-					if(miniGM.contains(vList[1])){
-						context.write(new Text(vList[0]+","+vList[1]+","+vList[4]), new Text(vList[2]));
-					}
+					context.write(new Text(vList[0]+","+vList[1]+","+vList[4]), new Text(vList[2]));
 					
 				}
 			}else if(vList.length==4){
 				if(!vList[2].equals("0")){
-					if(miniGM.contains(vList[1])){
-						context.write(new Text(vList[0]+","+vList[1]+","+"en"), new Text(vList[2]));
-					}					
+					context.write(new Text(vList[0]+","+vList[1]+","+"en"), new Text(vList[2]));
 				}
 			}
 		}

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -32,6 +33,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.VectorWritable;
 
+import com.elex.gmrec.etl.FilterUtils;
 import com.elex.gmrec.etl.IDMapping;
 
 
@@ -72,7 +74,8 @@ public class SimilarityParse extends Configured implements Tool {
 		private int loop;
 		private String dtoStr;
 		private Map<String, String> id_index_map = new HashMap<String, String>();
-		private  Map<Integer,String> gidMap;
+		private Map<Integer,String> gidMap;
+		private Set<String> miniGame;
 
 		public void reduce(Text key, Iterable<Text> values, Context context)
 				throws IOException, InterruptedException {
@@ -81,13 +84,15 @@ public class SimilarityParse extends Configured implements Tool {
 			i = 0;
 			for (Text val : values) {
 				itempref = val.toString().split(",");
-				if (Double.parseDouble(itempref[1]) > range) {
-					ItemPrefDTO dto = new ItemPrefDTO();
-					dto.setDst_itemId(itempref[0].trim());
-					dto.setPref(itempref[1].trim());
-					itemPairList.add(dto);
+				if(miniGame.contains(itempref[0])){
+					if (Double.parseDouble(itempref[1]) > range) {
+						ItemPrefDTO dto = new ItemPrefDTO();
+						dto.setDst_itemId(itempref[0].trim());
+						dto.setPref(itempref[1].trim());
+						itemPairList.add(dto);
+					}
 				}
-
+				
 			}
 
 			Collections.sort(itemPairList, new ItemPrefComparator());
@@ -120,6 +125,7 @@ public class SimilarityParse extends Configured implements Tool {
 		protected void setup(Context context) throws IOException,
 				InterruptedException {			
 			gidMap = IDMapping.getGidIntStrMap();
+			miniGame = FilterUtils.getMiniGM();
 			
 			Configuration configuration = context.getConfiguration();
 			topN = Integer.parseInt(configuration.get("topN"));

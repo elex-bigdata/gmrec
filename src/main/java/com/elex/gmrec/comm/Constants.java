@@ -13,6 +13,7 @@ public class Constants {
 	public static final String ARULEOUTPUT="/output/arule/rule";
 	public static final String CFRECPARSE="/parse/cf";
 	public static final String CFTEMP="/temp";
+	public static final String FILTERFILE="/filter/reclist";
 	
 	public static final String TAGCFIN="/input/tagcf";
 	public static final String TAGCFINFINAL="/input/tagcf-final";

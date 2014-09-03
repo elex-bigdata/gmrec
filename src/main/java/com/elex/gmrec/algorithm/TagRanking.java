@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -29,6 +30,7 @@ import org.apache.hadoop.util.ToolRunner;
 import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.comm.PropertiesUtils;
+import com.elex.gmrec.etl.FilterUtils;
 
 public class TagRanking extends Configured implements Tool {
 
@@ -69,13 +71,23 @@ public class TagRanking extends Configured implements Tool {
 
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
 
-		 String[] vList;
+		String[] vList;
+		Set<String> miniGame;
+		
+		 @Override
+		protected void setup(Context context) throws IOException,
+				InterruptedException {
+			 miniGame = FilterUtils.getMiniGM();
+		}
+		
 		@Override
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			vList = value.toString().split(",");
 			if(vList.length==3){
-				context.write(new Text(vList[1]), new Text(vList[2]));
+				if(miniGame.contains(vList[2])){
+					context.write(new Text(vList[1]), new Text(vList[2]));
+				}				
 			}
 		}
 	}

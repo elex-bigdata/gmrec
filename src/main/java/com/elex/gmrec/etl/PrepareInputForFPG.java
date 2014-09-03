@@ -1,6 +1,7 @@
 package com.elex.gmrec.etl;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -58,15 +59,24 @@ public class PrepareInputForFPG extends Configured implements Tool {
 
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
 
-		 String[] vList;
+		Set<String> miniGame;
+		
+		 @Override
+		protected void setup(Context context) throws IOException,
+				InterruptedException {
+			 miniGame = FilterUtils.getMiniGM();
+		}
+		String[] vList;
 		@Override
 		protected void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			vList = value.toString().split(",");
 			if(vList.length==3){
-				if(!vList[2].equals("0")){
-					context.write(new Text(vList[0]), new Text(vList[1]));
-				}
+				if(miniGame.contains(vList[1])){
+					if(!vList[2].equals("0")){
+						context.write(new Text(vList[0]), new Text(vList[1]));
+					}
+				}				
 			}
 		}
 	}
