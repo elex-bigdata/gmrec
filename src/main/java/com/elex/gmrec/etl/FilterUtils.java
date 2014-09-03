@@ -3,6 +3,7 @@ package com.elex.gmrec.etl;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
@@ -65,11 +66,12 @@ public class FilterUtils {
 	}
 	
 	
-	public static void writeSetToFileNoIndex(FileSystem fs, Set<String> set,Path dest) throws IOException{
+	public static void writeFilerFile(FileSystem fs, Set<String> set,Path dest) throws IOException{
 		FSDataOutputStream out = fs.create(dest);
 		Iterator<String> ite = set.iterator();
+		Map<String,Integer> gidStrIntMap = IDMapping.getGidStrIntMap();
 		while(ite.hasNext()){
-			out.write(Bytes.toBytes(new String(ite.next()+"\r\n")));
+			out.write(Bytes.toBytes(new String(gidStrIntMap.get(ite.next())+"\r\n")));
 		}		
 		out.close();		
 	}

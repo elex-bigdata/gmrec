@@ -22,7 +22,6 @@ import com.elex.gmrec.etl.PrepareInputForFPG;
 import com.elex.gmrec.etl.PrepareInputForTagCF;
 import com.elex.gmrec.etl.Rating;
 import com.elex.gmrec.etl.RatingMerge;
-import com.elex.gmrec.etl.TagLoader;
 
 
 public class Scheduler {

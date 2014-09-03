@@ -84,7 +84,7 @@ public class SimilarityParse extends Configured implements Tool {
 			i = 0;
 			for (Text val : values) {
 				itempref = val.toString().split(",");
-				if(miniGame.contains(itempref[0])){
+				if(miniGame.contains(gidMap.get(new Integer(id_index_map.get(itempref[0]))))){
 					if (Double.parseDouble(itempref[1]) > range) {
 						ItemPrefDTO dto = new ItemPrefDTO();
 						dto.setDst_itemId(itempref[0].trim());

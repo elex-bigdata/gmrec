@@ -32,7 +32,6 @@ import org.apache.hadoop.util.ToolRunner;
 
 import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
-import com.elex.gmrec.comm.Language;
 import com.elex.gmrec.comm.PropertiesUtils;
 
 public class PrepareInputForTagCF extends Configured implements Tool {

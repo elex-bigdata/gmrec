@@ -32,7 +32,7 @@ public class ItemBaseCF implements StrLineParseTool {
 	public static int RunItemCf() throws Exception{
 		Configuration conf = new Configuration();
 		FileSystem fs = FileSystem.get(conf);
-		FilterUtils.writeSetToFileNoIndex(fs, FilterUtils.getMiniGM(), new Path(PropertiesUtils.getGmRecRootFolder()+Constants.FILTERFILE));
+		FilterUtils.writeFilerFile(fs, FilterUtils.getMiniGM(), new Path(PropertiesUtils.getGmRecRootFolder()+Constants.FILTERFILE));
 		String cfOut = PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT;
 		String cfTemp = PropertiesUtils.getGmRecRootFolder()+Constants.CFTEMP;
 		HdfsUtils.delFile(fs, cfOut);
