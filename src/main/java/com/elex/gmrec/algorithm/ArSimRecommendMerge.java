@@ -274,6 +274,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 	public static class MyReducer extends Reducer<Text, Text, Text, Text> {
 				
 		Set<String> unionRec = new HashSet<String>();
+		Set<String> tagRec = new HashSet<String>();
 		
 		@Override
 		protected void reduce(Text key, Iterable<Text> values,Context context) throws IOException, InterruptedException {
@@ -281,6 +282,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 			String gid,recStr;
 			String[] gids;
 			unionRec.clear();
+			tagRec.clear();
 			List<String> topN = new ArrayList<String>();
 			Set<String> recSet = new HashSet<String>();
 			
@@ -297,7 +299,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 						recStr = line.toString().substring(3,line.toString().length());
 						gids = recStr.split(",");
 						for(String rec:gids){
-							unionRec.add(rec);
+							tagRec.add(rec);
 						}
 						
 					}
@@ -312,6 +314,7 @@ public class ArSimRecommendMerge extends Configured implements Tool {
 				recSet.addAll(RandomUtils.randomTopN(size,topN));
 			}else{
 				recSet.addAll(topN);
+				recSet.addAll(RandomUtils.randomTopN(size-topN.size(),new ArrayList<String>(tagRec)));
 			}
 			
 			if (recSet.size() > 0) {
