@@ -16,6 +16,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.mahout.common.HadoopUtil;
 
 import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
@@ -31,23 +32,21 @@ public class IDMapping {
 	private static String[] gidIntStrMap;
 	private static Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.UIDMAPPINGFILE);
 	private static Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GIDMAPPINGFILE);
-	private static int userCount = 0;
-	private static int gameCount = 0;
 	
-	public static int getUserCount() {
-		return userCount;
+	public static int getUserCount(Configuration conf) throws IOException {
+		return HadoopUtil.readInt(new Path(PropertiesUtils.getGmRecRootFolder()+Constants.USERCOUNT), conf);
 	}
 
-	public static void setUserCount(int userCount) {
-		IDMapping.userCount = userCount;
+	public static void setUserCount(int userCount,Configuration conf) throws IOException {		
+		HadoopUtil.writeInt(userCount, new Path(PropertiesUtils.getGmRecRootFolder()+Constants.USERCOUNT), conf);
 	}
 
-	public static int getGameCount() {
-		return gameCount;
+	public static int getGameCount(Configuration conf) throws IOException {
+		return HadoopUtil.readInt(new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GAMECOUNT), conf);
 	}
 
-	public static void setGameCount(int gameCount) {
-		IDMapping.gameCount = gameCount;
+	public static void setGameCount(int gameCount,Configuration conf) throws IOException {
+		HadoopUtil.writeInt(gameCount, new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GAMECOUNT), conf);
 	}
 	/**
 	 * @param args
@@ -79,7 +78,7 @@ public class IDMapping {
 		if(uidIntStrMap==null){
 			Configuration conf = new Configuration();
 		    FileSystem fs = FileSystem.get(conf);
-			uidIntStrMap = IDMapping.readIntStrIdMapFile(fs, uidMappingFile);
+			uidIntStrMap = IDMapping.readIntStrIdMapFile(fs, uidMappingFile,conf);
 		}
 		return uidIntStrMap;
 	}
@@ -88,7 +87,7 @@ public class IDMapping {
 		if(gidIntStrMap==null){
 			Configuration conf = new Configuration();
 		    FileSystem fs = FileSystem.get(conf);
-		    gidIntStrMap = IDMapping.readIntStrIdMapFile(fs, gidMappingFile);
+		    gidIntStrMap = IDMapping.readIntStrIdMapFile(fs, gidMappingFile,conf);
 		}
 		return gidIntStrMap;
 	}
@@ -135,12 +134,12 @@ public class IDMapping {
         		}
         	}
         } 
-        setUserCount(uidSet.size()+1);
+        setUserCount(uidSet.size()+1,conf);
         Path uidMappingFile = new Path(uid);
         HdfsUtils.delFile(fs, uidMappingFile.toString());
         writeSetToFile(fs,uidSet,uidMappingFile);
         
-        setGameCount(gidSet.size()+1);
+        setGameCount(gidSet.size()+1,conf);
         Path gidMappingFile = new Path(gid);
         HdfsUtils.delFile(fs, gidMappingFile.toString());
         writeSetToFile(fs,gidSet,gidMappingFile);
@@ -177,12 +176,12 @@ public class IDMapping {
 	}
 	
 	
-	public static String[] readIntStrIdMapFile(FileSystem fs,Path src) throws IOException{
+	public static String[] readIntStrIdMapFile(FileSystem fs,Path src,Configuration conf) throws IOException{
 		String[] idMap;
 		if(src.toString().contains(Constants.UIDMAPPINGFILE)){
-			idMap = new String[getUserCount()];
+			idMap = new String[getUserCount(conf)];
 		}else{
-			idMap = new String[getGameCount()];
+			idMap = new String[getGameCount(conf)];
 		}
 		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src))); 

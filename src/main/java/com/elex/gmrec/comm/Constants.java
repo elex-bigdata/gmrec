@@ -29,4 +29,7 @@ public class Constants {
 	public static final String ARSIMTAGRECMERGE="/recmerge/item";
 	public static final String DEFAULTTAG = "20000";
 	
+	public static final String USERCOUNT="/count/user";
+	public static final String GAMECOUNT="/count/game";
+	
 }

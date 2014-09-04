@@ -1,7 +1,6 @@
 package com.elex.gmrec.etl;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
