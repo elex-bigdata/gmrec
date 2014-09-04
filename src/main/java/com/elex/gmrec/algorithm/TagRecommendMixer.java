@@ -79,7 +79,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 	public static class MyMapper extends Mapper<LongWritable, Text, Text, Text> {
 		
 		String[] list;
-		Map<Integer,String> uidMap;//用户索引号和用户id对应表，key为整形的用户索引号，value为用户id
+		String[] uidMap;//用户索引号和用户id对应表，key为整形的用户索引号，value为用户id
 		
 		@Override
 		protected void setup(Context context) throws IOException,
@@ -103,7 +103,7 @@ public class TagRecommendMixer extends Configured implements Tool {
 			}else if(pathName.contains(Constants.TAGCFOUTPUT)){
 				list = value.toString().split("\\s");
 				//由于tagCf的输出中uid为整形索引号，在此需要还原
-				context.write(new Text(uidMap.get(Integer.parseInt(list[0].trim()))), new Text("02_"+parseTagCFRec(list[1])));
+				context.write(new Text(uidMap[Integer.parseInt(list[0].trim())]), new Text("02_"+parseTagCFRec(list[1])));
 			}else if(pathName.contains(Constants.USERTOPTAG)){
 				list = value.toString().split("\\s");
 				context.write(new Text(list[0]), new Text("02_"+parseUserTagTopN(list[1])));

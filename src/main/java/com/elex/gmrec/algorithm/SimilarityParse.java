@@ -74,7 +74,7 @@ public class SimilarityParse extends Configured implements Tool {
 		private int loop;
 		private String dtoStr;
 		private Map<String, String> id_index_map = new HashMap<String, String>();
-		private Map<Integer,String> gidMap;
+		private String[] gidMap;
 		private Set<String> miniGame;
 
 		public void reduce(Text key, Iterable<Text> values, Context context)
@@ -84,7 +84,7 @@ public class SimilarityParse extends Configured implements Tool {
 			i = 0;
 			for (Text val : values) {
 				itempref = val.toString().split(",");
-				if(miniGame.contains(gidMap.get(new Integer(id_index_map.get(itempref[0]))))){
+				if(miniGame.contains(gidMap[new Integer(id_index_map.get(itempref[0]))])){
 					if (Double.parseDouble(itempref[1]) > range) {
 						ItemPrefDTO dto = new ItemPrefDTO();
 						dto.setDst_itemId(itempref[0].trim());
@@ -103,10 +103,10 @@ public class SimilarityParse extends Configured implements Tool {
 				loop = topN;
 			}
 
-			sb.append(gidMap.get(Integer.parseInt(id_index_map.get(key.toString())))).append("\t").append("[");
+			sb.append(gidMap[Integer.parseInt(id_index_map.get(key.toString()))]).append("\t").append("[");
 			while (i < loop) {
 				sb.append("{");
-				dtoStr ="\""+gidMap.get(Integer.parseInt(id_index_map.get(itemPairList.get(i).getDst_itemId()))) +"\"" + ":" + itemPairList.get(i).getPref();
+				dtoStr ="\""+gidMap[Integer.parseInt(id_index_map.get(itemPairList.get(i).getDst_itemId()))] +"\"" + ":" + itemPairList.get(i).getPref();
 				sb.append(dtoStr);
 				sb.append("}");
 				if (i != loop-1) {

@@ -27,11 +27,28 @@ public class IDMapping {
 
 	private static Map<String,Integer> uidStrIntMap;
 	private static Map<String,Integer> gidStrIntMap;
-	private static Map<Integer,String> uidIntStrMap;
-	private static Map<Integer,String> gidIntStrMap;
+	private static String[] uidIntStrMap;
+	private static String[] gidIntStrMap;
 	private static Path uidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.UIDMAPPINGFILE);
 	private static Path gidMappingFile = new Path(PropertiesUtils.getGmRecRootFolder()+Constants.GIDMAPPINGFILE);
+	private static int userCount = 0;
+	private static int gameCount = 0;
+	
+	public static int getUserCount() {
+		return userCount;
+	}
 
+	public static void setUserCount(int userCount) {
+		IDMapping.userCount = userCount;
+	}
+
+	public static int getGameCount() {
+		return gameCount;
+	}
+
+	public static void setGameCount(int gameCount) {
+		IDMapping.gameCount = gameCount;
+	}
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -58,7 +75,7 @@ public class IDMapping {
 		return gidStrIntMap;
 	}
 	
-	public static Map<Integer,String> getUidIntStrMap() throws IOException{
+	public static String[] getUidIntStrMap() throws IOException{
 		if(uidIntStrMap==null){
 			Configuration conf = new Configuration();
 		    FileSystem fs = FileSystem.get(conf);
@@ -67,7 +84,7 @@ public class IDMapping {
 		return uidIntStrMap;
 	}
 	
-	public static Map<Integer,String> getGidIntStrMap() throws IOException{
+	public static String[] getGidIntStrMap() throws IOException{
 		if(gidIntStrMap==null){
 			Configuration conf = new Configuration();
 		    FileSystem fs = FileSystem.get(conf);
@@ -118,11 +135,12 @@ public class IDMapping {
         		}
         	}
         } 
-        
+        setUserCount(uidSet.size()+1);
         Path uidMappingFile = new Path(uid);
         HdfsUtils.delFile(fs, uidMappingFile.toString());
         writeSetToFile(fs,uidSet,uidMappingFile);
         
+        setGameCount(gidSet.size()+1);
         Path gidMappingFile = new Path(gid);
         HdfsUtils.delFile(fs, gidMappingFile.toString());
         writeSetToFile(fs,gidSet,gidMappingFile);
@@ -159,14 +177,20 @@ public class IDMapping {
 	}
 	
 	
-	public static Map<Integer,String> readIntStrIdMapFile(FileSystem fs,Path src) throws IOException{
-		Map<Integer,String> idMap = new HashMap<Integer,String>();
+	public static String[] readIntStrIdMapFile(FileSystem fs,Path src) throws IOException{
+		String[] idMap;
+		if(src.toString().contains(Constants.UIDMAPPINGFILE)){
+			idMap = new String[getUserCount()];
+		}else{
+			idMap = new String[getGameCount()];
+		}
+		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src))); 
 		String line =reader.readLine();
         while(line != null){
         	String[] vList = line.split(",");
         	if(vList.length==2){
-        		idMap.put(Integer.parseInt(vList[0]),vList[1]);
+        		idMap[Integer.parseInt(vList[0])]=vList[1];
         	}
         	
         	line = reader.readLine();

@@ -56,7 +56,7 @@ public class AsocciationRule {
 	}
 	
 	public static int runARule() throws IOException{
-		Map<Integer,String> gidIntStrMap = IDMapping.getGidIntStrMap();
+		String[] gidIntStrMap = IDMapping.getGidIntStrMap();
 		double confidence = PropertiesUtils.getConfidence();
 		double theConfidence = 0D;
 		DecimalFormat df = new DecimalFormat("#.###");
@@ -91,7 +91,7 @@ public class AsocciationRule {
         			reader = new SequenceFile.Reader(conf, Reader.file(hdfs_src));        	                    	            
         	            while (reader.next(itemID, patterns)) { 
         	            	StringBuilder sb = new StringBuilder(100);
-        	            	gid = gidIntStrMap.get(Integer.parseInt(itemID.toString()));
+        	            	gid = gidIntStrMap[Integer.parseInt(itemID.toString())];
         	            	sb.append(gid).append("\t").append("[");
         	            	ite = patterns.iterator();
         	            	int i=0;
@@ -104,7 +104,7 @@ public class AsocciationRule {
         	            			if(theConfidence >= confidence){
         	            				sb.append("{");
         	            				sb.append("\"");
-        	            				gid = gidIntStrMap.get(Integer.parseInt(pattern.getFirst().get(0)));
+        	            				gid = gidIntStrMap[Integer.parseInt(pattern.getFirst().get(0))];
         	            				sb.append(gid);
         	            				sb.append("\"");
         	            				sb.append(":\"").append(df.format(theConfidence)+"-"+pattern.getSecond()+"\"");
