@@ -74,10 +74,10 @@ public class ItemBaseCF implements StrLineParseTool {
 		
 	
 	public static int recParse() throws Exception{
-		 String input = PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT;
-		 String output = PropertiesUtils.getGmRecRootFolder()+Constants.CFRECPARSE;
-		 ParseUtils.parseTextOutput(input, output, new ItemBaseCF());
-		 return 0;
+		
+		String[] args = new String[]{PropertiesUtils.getGmRecRootFolder()+Constants.CFOUTPUT,PropertiesUtils.getGmRecRootFolder()+Constants.CFRECPARSE};
+		return ToolRunner.run(new Configuration(), new CfRecParse(),args);
+
 	}
 	
 		
