@@ -246,7 +246,7 @@ public class Rating extends Configured implements Tool  {
 				if(actions.length==2){
 					if(!"".equals(actions[1])){
 						if("hb".equals(actions[1])){
-							gmHbMap.put(actions[0],gmHbMap.get(actions[0])==null?0:gmHbMap.get(actions[0])+1);
+							gmHbMap.put(actions[0],gmHbMap.get(actions[0])==null?1:gmHbMap.get(actions[0])+1);
 						}else if("up".equals(actions[1])){
 							gmUpDownMap.put(actions[0], true);
 						}else if("do".equals(actions[1])){
@@ -268,7 +268,7 @@ public class Rating extends Configured implements Tool  {
 				}else if(gmUpDownMap.get(gid)){
 					rate = 10D;
 				}else if(!gmUpDownMap.get(gid)){
-					rate = 0D;
+					rate = 0.001D;
 				}
 				
 				rate=rate>10?10:rate;

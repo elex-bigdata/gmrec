@@ -96,14 +96,9 @@ public class RatingMerge extends Configured implements Tool  {
 			vList = value.toString().split(",");
 			
 			if(vList.length==5){
-				if(!vList[2].equals("0")){
-					context.write(new Text(vList[0]+","+vList[1]+","+vList[4]), new Text(vList[2]));
-					
-				}
+				context.write(new Text(vList[0]+","+vList[1]+","+vList[4]), new Text(vList[2]));
 			}else if(vList.length==4){
-				if(!vList[2].equals("0")){
-					context.write(new Text(vList[0]+","+vList[1]+","+"en"), new Text(vList[2]));
-				}
+				context.write(new Text(vList[0]+","+vList[1]+","+"en"), new Text(vList[2]));				
 			}
 		}
 	}
