@@ -24,8 +24,6 @@ public class ItemBaseCF implements StrLineParseTool {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		RunItemCf();
-		cfSimParse();
 		recParse();
 	}
 	

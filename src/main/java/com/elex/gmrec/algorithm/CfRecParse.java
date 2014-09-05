@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -19,6 +20,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.mahout.math.VectorWritable;
 
+import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.etl.IDMapping;
 
 
@@ -96,6 +98,7 @@ public class CfRecParse extends Configured implements Tool {
 
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
 		Job job = Job.getInstance(conf, "CfRecParse");
 		job.setInputFormatClass(TextInputFormat.class);
 		job.setJarByClass(CfRecParse.class);
@@ -106,7 +109,8 @@ public class CfRecParse extends Configured implements Tool {
 		job.setOutputFormatClass(TextOutputFormat.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);		
-		FileInputFormat.addInputPath(job, new Path(args[0]));		
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		HdfsUtils.delFile(fs, args[1]);
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		
 		return job.waitForCompletion(true) ? 0 : 1;
