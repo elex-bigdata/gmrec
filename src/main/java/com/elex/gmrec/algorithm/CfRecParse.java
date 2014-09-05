@@ -30,7 +30,6 @@ public class CfRecParse extends Configured implements Tool {
 			Mapper<LongWritable, Text, Text, Text> {
 
 		String[] uidMap;
-		String[] kv;
 		String uid;
 
 		@Override
