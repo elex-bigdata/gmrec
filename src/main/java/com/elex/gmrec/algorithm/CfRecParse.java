@@ -6,7 +6,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -18,7 +17,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.mahout.math.VectorWritable;
 
 import com.elex.gmrec.comm.HdfsUtils;
 import com.elex.gmrec.etl.IDMapping;
@@ -38,7 +36,7 @@ public class CfRecParse extends Configured implements Tool {
 			uidMap = IDMapping.getUidIntStrMap();
 		}
 
-		public void map(LongWritable key, VectorWritable value, Context context)
+		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			 String[] kv = value.toString().split("\\s");
 			 if(kv != null){
