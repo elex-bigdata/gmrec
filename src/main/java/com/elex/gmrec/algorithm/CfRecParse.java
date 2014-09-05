@@ -41,12 +41,8 @@ public class CfRecParse extends Configured implements Tool {
 		public void map(IntWritable key, VectorWritable value, Context context)
 				throws IOException, InterruptedException {
 			 String[] kv = value.toString().split("\\s");
-			 if(kv != null){
-				 if(kv.length==2){
-					 uid = uidMap[Integer.parseInt(kv[0].trim())];
-					 context.write(new Text(uid), new Text(kv[1]));
-				 }				 
-			 }			 
+			 uid = uidMap[Integer.parseInt(kv[0].trim())];
+			 context.write(new Text(uid), new Text(kv[1]));		 
 		}
 	}
 
