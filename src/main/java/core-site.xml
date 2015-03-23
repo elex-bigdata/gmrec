@@ -48,4 +48,10 @@
         <name>io.file.buffer.size</name>
         <value>16384</value>
     </property>
+
+    <property>
+        <name>fs.checkpoint.size</name>
+        <value>67108864</value>
+    </property>
+
 </configuration>

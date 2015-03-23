@@ -43,7 +43,7 @@
         <value>775</value>
     </property>
     <property>
-      <name>dfs.namenode.secondary.http-address</name>
+      <name>dfs.secondary.http.address</name>
       <value>namenode2:50090</value>
     </property>
     <property>
@@ -60,7 +60,7 @@
     </property>
     <property>
         <name>dfs.datanode.max.xcievers</name>
-        <value>4096</value>
+        <value>8192</value>
     </property>
     <property>
         <name>dfs.permissions</name>

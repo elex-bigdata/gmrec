@@ -19,9 +19,19 @@
 
 <configuration>
     <property>
+       <name>mapreduce.framework.name</name>
+       <value>yarn</value>
+    </property>
+    <property>
+        <name>mapreduce.jobhistory.address</name>
+        <value>namenode1:10020</value>
+    </property>
+<!--
+    <property>
         <name>mapred.job.tracker</name>
         <value>namenode1:8021</value>
     </property>
+-->
     <property>
         <name>ipc.server.listen.queue.size</name>
         <value>256</value>

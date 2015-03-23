@@ -8,6 +8,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.mahout.common.HadoopUtil;
 
 import com.elex.gmrec.comm.Constants;
 import com.elex.gmrec.comm.HdfsUtils;
