@@ -21,9 +21,7 @@ import com.google.common.primitives.Floats;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.mahout.cf.taste.common.TopK;
 import org.apache.mahout.cf.taste.hadoop.RecommendedItemsWritable;
-import org.apache.mahout.cf.taste.hadoop.TasteHadoopUtils;
 import org.apache.mahout.cf.taste.hadoop.item.PrefAndSimilarityColumnWritable;
 import org.apache.mahout.cf.taste.impl.common.FastIDSet;
 import org.apache.mahout.cf.taste.impl.recommender.GenericRecommendedItem;
@@ -149,7 +147,7 @@ public final class AggregateAndRecommendReducer extends
       Vector simColumn = prefAndSimilarityColumn.getSimilarityColumn();
       float prefValue = prefAndSimilarityColumn.getPrefValue();
       /* count the number of items used for each prediction */
-      Iterator<Vector.Element> usedItemsIterator = simColumn.iterateNonZero();
+      Iterator<Vector.Element> usedItemsIterator = simColumn.all().iterator();
       while (usedItemsIterator.hasNext()) {
         int itemIDIndex = usedItemsIterator.next().index();
         numberOfSimilarItemsUsed.setQuick(itemIDIndex, numberOfSimilarItemsUsed.getQuick(itemIDIndex) + 1);
@@ -168,7 +166,7 @@ public final class AggregateAndRecommendReducer extends
     }
 
     Vector recommendationVector = new RandomAccessSparseVector(Integer.MAX_VALUE, 100);
-    Iterator<Vector.Element> iterator = numerators.iterateNonZero();
+    Iterator<Vector.Element> iterator = numerators.all().iterator();
     while (iterator.hasNext()) {
       Vector.Element element = iterator.next();
       int itemIDIndex = element.index();
@@ -195,7 +193,7 @@ public final class AggregateAndRecommendReducer extends
 
     TopK<RecommendedItem> topKItems = new TopK<RecommendedItem>(recommendationsPerUser, BY_PREFERENCE_VALUE);
 
-    Iterator<Vector.Element> recommendationVectorIterator = recommendationVector.iterateNonZero();
+    Iterator<Vector.Element> recommendationVectorIterator = recommendationVector.all().iterator();
     while (recommendationVectorIterator.hasNext()) {
       Vector.Element element = recommendationVectorIterator.next();
       int index = element.index();

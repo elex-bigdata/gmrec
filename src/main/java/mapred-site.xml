@@ -36,10 +36,32 @@
         <name>ipc.server.listen.queue.size</name>
         <value>256</value>
     </property>
+<!--
     <property>
         <name>mapred.child.java.opts</name>
         <value>-Xmx2000m -Xss256k -XX:+UseParallelGC</value>
     </property>
+-->
+    <property>
+        <name>mapreduce.map.java.opts</name>
+        <value>-Xmx3072m -Xss256k -XX:+UseParallelGC</value>
+    </property>
+    <property>
+        <name>mapreduce.reduce.java.opts</name>
+        <value>-Xmx6144m -Xss256k -XX:+UseParallelGC</value>
+    </property>
+
+  <property>
+    <name>mapreduce.map.memory.mb</name>
+    <value>4096</value>
+  </property>
+
+  <property>
+    <name>mapreduce.reduce.memory.mb</name>
+    <value>8192</value>
+  </property>
+
+
     <property>
         <name>mapred.job.reuse.jvm.num.tasks</name>
         <value>8</value>

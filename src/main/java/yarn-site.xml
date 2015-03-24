@@ -63,6 +63,11 @@
   </property>
 
   <property>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>24576</value>
+  </property>
+
+  <property>
     <description>Classpath for typical applications.</description>
      <name>yarn.application.classpath</name>
      <value>

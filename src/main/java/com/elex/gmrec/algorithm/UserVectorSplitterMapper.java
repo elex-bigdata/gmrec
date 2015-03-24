@@ -23,7 +23,6 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.mahout.cf.taste.common.TopK;
 import org.apache.mahout.cf.taste.hadoop.item.VectorOrPrefWritable;
 import org.apache.mahout.cf.taste.impl.common.FastIDSet;
 import org.apache.mahout.common.iterator.FileLineIterable;
@@ -86,7 +85,7 @@ public final class UserVectorSplitterMapper extends
       return;
     }
     Vector userVector = maybePruneUserVector(value.get());
-    Iterator<Vector.Element> it = userVector.iterateNonZero();
+    Iterator<Vector.Element> it = userVector.nonZeroes().iterator();
     VarIntWritable itemIndexWritable = new VarIntWritable();
     VectorOrPrefWritable vectorOrPref = new VectorOrPrefWritable();
     while (it.hasNext()) {
@@ -107,7 +106,7 @@ public final class UserVectorSplitterMapper extends
     // "Blank out" small-sized prefs to reduce the amount of partial products
     // generated later. They're not zeroed, but NaN-ed, so they come through
     // and can be used to exclude these items from prefs.
-    Iterator<Vector.Element> it = userVector.iterateNonZero();
+    Iterator<Vector.Element> it = userVector.nonZeroes().iterator();
     while (it.hasNext()) {
       Vector.Element e = it.next();
       float absValue = Math.abs((float) e.get());
@@ -128,7 +127,7 @@ public final class UserVectorSplitterMapper extends
       }
     });
 
-    Iterator<Vector.Element> it = userVector.iterateNonZero();
+    Iterator<Vector.Element> it = userVector.nonZeroes().iterator();
     while (it.hasNext()) {
       float absValue = Math.abs((float) it.next().get());
       topPrefValues.offer(absValue);

@@ -51,7 +51,7 @@ public class SimilarityParse extends Configured implements Tool {
 		public void map(IntWritable key, VectorWritable value, Context context)
 				throws IOException, InterruptedException {
 			
-			nonZeroElements = value.get().iterateNonZero();
+			nonZeroElements = value.get().nonZeroes().iterator();
 			while (nonZeroElements.hasNext()) {
 				nonZeroElement = nonZeroElements.next();
 				nKey.set(key.toString());
