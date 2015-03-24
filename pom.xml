@@ -138,6 +138,10 @@
 					<artifactId>jdk.tools</artifactId>
 					<groupId>jdk.tools</groupId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-math3</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -148,6 +152,10 @@
 				<exclusion>
 					<groupId>jfree</groupId>
 					<artifactId>jfreechart</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-math3</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -160,13 +168,21 @@
 					<groupId>jfree</groupId>
 					<artifactId>jfreechart</artifactId>
 				</exclusion>
-				
-			</exclusions>			
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-math3</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>org.json</artifactId>
 			<version>chargebee-1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.2</version>
 		</dependency>
 	</dependencies>
 
